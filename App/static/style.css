@@ -135,7 +135,6 @@ body {
 
 /* Main Content Area */
 .main-content {
-  margin-left: 260px;
   transition: margin-left 0.3s ease;
 }
 
@@ -657,4 +656,52 @@ ul li strong {
   border-bottom: 2px solid var(--accent-silver);
   padding-bottom: 1rem;
   margin-bottom: 2rem;
+}
+
+/* Landing Page Background */
+.landing-page-content {
+    position: relative;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    background-image: url('C:\Users\bradl\Desktop\BradleyKhan-INFO-3604-PROJECT-\App\static\images\AJL.jpg'); /* Update this path */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* Optional: Add an overlay to make text readable */
+.landing-page-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9); /* White overlay at 90% opacity */
+    z-index: 0;
+    pointer-events: none; /* Allows clicking through to content */
+}
+
+/* Ensure content appears above the overlay */
+.landing-page-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Alternative overlay using your navy color */
+.landing-page-content.navy-overlay::before {
+    background-color: rgba(0, 0, 50, 0.7); /* Navy overlay at 70% opacity */
+}
+
+/* Style cards and sections to be semi-transparent on landing page */
+.landing-page-content .card {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+}
+
+.landing-page-content .hero-section {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--border-color);
 }
