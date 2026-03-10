@@ -16,7 +16,8 @@
   font-family: 'Segoe UI', 'Trebuchet MS', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -49,6 +50,11 @@ body {
   top: 56px;
   z-index: 1000;
   transition: transform 0.3s ease;
+  transform: translateX(-100%);
+}
+
+.sidebar.active {
+  transform: translateX(0);
 }
 
 .sidebar-header {
@@ -135,7 +141,7 @@ body {
 
 /* Main Content Area */
 .main-content {
-  margin-left: 260px;
+  margin-left: 0;
   transition: margin-left 0.3s ease;
 }
 
@@ -285,7 +291,12 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Georgia', 'Garamond', serif;
   font-weight: 500;
   color: var(--primary-navy);
@@ -493,7 +504,8 @@ table tbody tr:last-child td {
 }
 
 /* Sections */
-section, article {
+section,
+article {
   background-color: var(--bg-light);
   padding: 2rem;
   margin-bottom: 2rem;
@@ -576,25 +588,26 @@ ul li strong {
   h1 {
     font-size: 2rem;
   }
-  
+
   h2 {
     font-size: 1.5rem;
   }
-  
+
   .brand-title {
     font-size: 0.95rem;
     letter-spacing: 0.5px;
   }
-  
+
   .navbar form {
     margin-top: 1rem;
   }
-  
+
   .card-body {
     padding: 1rem;
   }
-  
-  table th, table td {
+
+  table th,
+  table td {
     padding: 0.75rem 0.5rem;
     font-size: 0.9rem;
   }
