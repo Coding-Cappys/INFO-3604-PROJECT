@@ -141,7 +141,6 @@ body {
 
 /* Main Content Area */
 .main-content {
-  margin-left: 0;
   transition: margin-left 0.3s ease;
 }
 
@@ -671,3 +670,4 @@ ul li strong {
   padding-bottom: 1rem;
   margin-bottom: 2rem;
 }
+
