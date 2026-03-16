@@ -10,7 +10,6 @@
 
     <div class="card shadow-sm mb-3">
       <div class="card-body">
-        <!-- Search Field -->
         <input type="text" id="searchInput" class="form-control" placeholder="Search by name, username, or email" onkeyup="filterAttendees()">
       </div>
     </div>
@@ -34,9 +33,9 @@
               <td>{{ attendee.username }}</td>
               <td>{{ attendee.email }}</td>
               <td>
-                <button class="btn btn-sm btn-success"
-                        onclick="checkIn({{ attendee.id }}, this)">
-                  Check In
+                <button class="btn btn-sm {{ 'btn-success' if attendee.checked_in else 'btn-secondary' }}"
+                        onclick="toggleCheckIn({{ attendee.id }}, this)">
+                  {{ 'Checked In' if attendee.checked_in else 'Check In' }}
                 </button>
               </td>
             </tr>
@@ -71,19 +70,21 @@ function filterAttendees() {
   });
 }
 
-function checkIn(userId, btn){
-  fetch(`/role/usher/checkin/${userId}`,{
-    method:"POST"
-  })
-  .then(res => res.json())
-  .then(data => {
-    alert(data.message);
-    // Disable the button and change text
-    btn.disabled = true;
-    btn.innerText = "Checked In";
-    btn.classList.remove("btn-success");
-    btn.classList.add("btn-secondary");
-  });
+function toggleCheckIn(userId, btn){
+  fetch(`/role/usher/checkin/${userId}`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      if(data.checked_in){
+        btn.innerText = "Checked In";
+        btn.classList.remove("btn-secondary");
+        btn.classList.add("btn-success");
+      } else {
+        btn.innerText = "Check In";
+        btn.classList.remove("btn-success");
+        btn.classList.add("btn-secondary");
+      }
+    })
+    .catch(err => alert("Error updating check-in"));
 }
 </script>
 {% endblock %}

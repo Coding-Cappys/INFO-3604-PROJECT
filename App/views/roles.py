@@ -294,13 +294,15 @@ def usher_search_attendees():
         attendees=attendees
     )
 
-@role_views.route('/role/usher/checkin/<int:user_id>', methods=['POST'])
-def checkin_attendee(user_id):
-    attendance = Attendance(user_id=user_id)
-    db.session.add(attendance)
+@role_views.route("/role/usher/checkin/<int:user_id>", methods=["POST"])
+def toggle_checkin(user_id):
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    user.checked_in = not user.checked_in
     db.session.commit()
-
-    return jsonify({"message": "Checked in"})
+    return jsonify({"checked_in": user.checked_in})
 
 @role_views.route('/role/usher/attendance-report', methods=['GET'])
 def usher_attendance_report():
@@ -310,3 +312,4 @@ def usher_attendance_report():
         'Usher',
         'Attendance Report',
     )
+
