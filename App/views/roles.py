@@ -16,7 +16,7 @@ def _render_role_page(template_name, title, role_label, page_title):
 @role_views.route('/role/author/create-submission', methods=['GET'])
 def author_create_submission():
     return _render_role_page(
-        'author_create_submission.html',
+        'author/author_create_submission.html',
         'Author - Create Submission',
         'Author',
         'Create Submission',
@@ -26,7 +26,7 @@ def author_create_submission():
 @role_views.route('/role/author/my-submissions', methods=['GET'])
 def author_my_submissions():
     return _render_role_page(
-        'author_my_submissions.html',
+        'author/author_my_submissions.html',
         'Author - My Submissions',
         'Author',
         'My Submissions',
@@ -36,7 +36,7 @@ def author_my_submissions():
 @role_views.route('/role/author/status-tracking', methods=['GET'])
 def author_status_tracking():
     return _render_role_page(
-        'author_status_tracking.html',
+        'author/author_status_tracking.html',
         'Author - Status Tracking',
         'Author',
         'Status Tracking',
@@ -46,7 +46,7 @@ def author_status_tracking():
 @role_views.route('/role/author/reviewer-feedback', methods=['GET'])
 def author_reviewer_feedback():
     return _render_role_page(
-        'author_reviewer_feedback.html',
+        'author/author_reviewer_feedback.html',
         'Author - Reviewer Feedback',
         'Author',
         'Reviewer Feedback',
@@ -57,7 +57,7 @@ def author_reviewer_feedback():
 @role_views.route('/role/reviewer/assigned-abstracts', methods=['GET'])
 def reviewer_assigned_abstracts():
     return _render_role_page(
-        'reviewer_assigned_abstracts.html',
+        'reviewer/reviewer_assigned_abstracts.html',
         'Reviewer - Assigned Abstracts',
         'Reviewer',
         'Assigned Abstracts',
@@ -67,17 +67,27 @@ def reviewer_assigned_abstracts():
 @role_views.route('/role/reviewer/my-reviews', methods=['GET'])
 def reviewer_my_reviews():
     return _render_role_page(
-        'reviewer_my_reviews.html',
+        'reviewer/reviewer_my_reviews.html',
         'Reviewer - My Reviews',
         'Reviewer',
         'My Reviews',
     )
 
 
+@role_views.route('/role/reviewer/abstract-digest', methods=['GET'])
+def reviewer_abstract_digest():
+    return _render_role_page(
+        'reviewer/reviewer_abstract_digest.html',
+        'Reviewer - Abstract Digest',
+        'Reviewer',
+        'Abstract Digest',
+    )
+
+
 @role_views.route('/role/reviewer/guidelines', methods=['GET'])
 def reviewer_guidelines():
     return _render_role_page(
-        'reviewer_guidelines.html',
+        'reviewer/reviewer_guidelines.html',
         'Reviewer - Guidelines',
         'Reviewer',
         'Guidelines',
@@ -87,7 +97,7 @@ def reviewer_guidelines():
 @role_views.route('/role/reviewer/statistics', methods=['GET'])
 def reviewer_statistics():
     return _render_role_page(
-        'reviewer_statistics.html',
+        'reviewer/reviewer_statistics.html',
         'Reviewer - Statistics',
         'Reviewer',
         'Statistics',
@@ -98,7 +108,7 @@ def reviewer_statistics():
 @role_views.route('/role/judge/assigned-presentations', methods=['GET'])
 def judge_assigned_presentations():
     return _render_role_page(
-        'judge_assigned_presentations.html',
+        'judge/judge_assigned_presentations.html',
         'Judge - Assigned Presentations',
         'Judge',
         'Assigned Presentations',
@@ -108,7 +118,7 @@ def judge_assigned_presentations():
 @role_views.route('/role/judge/oral-presentations', methods=['GET'])
 def judge_oral_presentations():
     return _render_role_page(
-        'judge_oral_presentations.html',
+        'judge/judge_oral_presentations.html',
         'Judge - Oral Presentations',
         'Judge',
         'Oral Presentations',
@@ -118,7 +128,7 @@ def judge_oral_presentations():
 @role_views.route('/role/judge/poster-sessions', methods=['GET'])
 def judge_poster_sessions():
     return _render_role_page(
-        'judge_poster_sessions.html',
+        'judge/judge_poster_sessions.html',
         'Judge - Poster Sessions',
         'Judge',
         'Poster Sessions',
@@ -128,7 +138,7 @@ def judge_poster_sessions():
 @role_views.route('/role/judge/my-scores', methods=['GET'])
 def judge_my_scores():
     return _render_role_page(
-        'judge_my_scores.html',
+        'judge/judge_my_scores.html',
         'Judge - My Scores',
         'Judge',
         'My Scores',
@@ -138,7 +148,7 @@ def judge_my_scores():
 @role_views.route('/role/judge/results', methods=['GET'])
 def judge_results():
     return _render_role_page(
-        'judge_results.html',
+        'judge/judge_results.html',
         'Judge - Results',
         'Judge',
         'Results',
@@ -149,7 +159,7 @@ def judge_results():
 @role_views.route('/role/attendee/schedule-agenda', methods=['GET'])
 def attendee_schedule_agenda():
     return _render_role_page(
-        'attendee_schedule_agenda.html',
+        'attendee/attendee_schedule_agenda.html',
         'Attendee - Schedule & Agenda',
         'Attendee',
         'Schedule & Agenda',
@@ -159,7 +169,7 @@ def attendee_schedule_agenda():
 @role_views.route('/role/attendee/my-schedule', methods=['GET'])
 def attendee_my_schedule():
     return _render_role_page(
-        'attendee_my_schedule.html',
+        'attendee/attendee_my_schedule.html',
         'Attendee - My Schedule',
         'Attendee',
         'My Schedule',
@@ -169,7 +179,7 @@ def attendee_my_schedule():
 @role_views.route('/role/attendee/presentations', methods=['GET'])
 def attendee_presentations():
     return _render_role_page(
-        'attendee_presentations.html',
+        'attendee/attendee_presentations.html',
         'Attendee - Presentations',
         'Attendee',
         'Presentations',
@@ -179,7 +189,7 @@ def attendee_presentations():
 @role_views.route('/role/attendee/my-qr-code', methods=['GET'])
 def attendee_my_qr_code():
     return _render_role_page(
-        'attendee_my_qr_code.html',
+        'attendee/attendee_my_qr_code.html',
         'Attendee - My QR Code',
         'Attendee',
         'My QR Code',
@@ -189,7 +199,7 @@ def attendee_my_qr_code():
 @role_views.route('/role/attendee/qa-feedback', methods=['GET'])
 def attendee_qa_feedback():
     return _render_role_page(
-        'attendee_qa_feedback.html',
+        'attendee/attendee_qa_feedback.html',
         'Attendee - Q&A & Feedback',
         'Attendee',
         'Q&A & Feedback',
@@ -200,7 +210,7 @@ def attendee_qa_feedback():
 @role_views.route('/role/admin/submissions', methods=['GET'])
 def admin_submissions():
     return _render_role_page(
-        'admin_submissions.html',
+        'admin/admin_submissions.html',
         'Administrator - Submissions',
         'Administrator',
         'Submissions',
@@ -210,7 +220,7 @@ def admin_submissions():
 @role_views.route('/role/admin/review-management', methods=['GET'])
 def admin_review_management():
     return _render_role_page(
-        'admin_review_management.html',
+        'admin/admin_review_management.html',
         'Administrator - Review Management',
         'Administrator',
         'Review Management',
@@ -220,7 +230,7 @@ def admin_review_management():
 @role_views.route('/role/admin/agenda-builder', methods=['GET'])
 def admin_agenda_builder():
     return _render_role_page(
-        'admin_agenda_builder.html',
+        'admin/admin_agenda_builder.html',
         'Administrator - Agenda Builder',
         'Administrator',
         'Agenda Builder',
@@ -230,7 +240,7 @@ def admin_agenda_builder():
 @role_views.route('/role/admin/judging-results', methods=['GET'])
 def admin_judging_results():
     return _render_role_page(
-        'admin_judging_results.html',
+        'admin/admin_judging_results.html',
         'Administrator - Judging & Results',
         'Administrator',
         'Judging & Results',
@@ -240,7 +250,7 @@ def admin_judging_results():
 @role_views.route('/role/admin/reports-analytics', methods=['GET'])
 def admin_reports_analytics():
     return _render_role_page(
-        'admin_reports_analytics.html',
+        'admin/admin_reports_analytics.html',
         'Administrator - Reports & Analytics',
         'Administrator',
         'Reports & Analytics',
@@ -250,7 +260,7 @@ def admin_reports_analytics():
 @role_views.route('/role/admin/settings', methods=['GET'])
 def admin_settings():
     return _render_role_page(
-        'admin_settings.html',
+        'admin/admin_settings.html',
         'Administrator - Settings',
         'Administrator',
         'Settings',
@@ -261,7 +271,7 @@ def admin_settings():
 @role_views.route('/role/usher/my-sessions', methods=['GET'])
 def usher_my_sessions():
     return _render_role_page(
-        'usher_my_sessions.html',
+        'usher/usher_my_sessions.html',
         'Usher - My Sessions',
         'Usher',
         'My Sessions',
@@ -271,7 +281,7 @@ def usher_my_sessions():
 @role_views.route('/role/usher/check-in', methods=['GET'])
 def usher_check_in():
     return _render_role_page(
-        'usher_check_in.html',
+        'usher/usher_check_in.html',
         'Usher - Check-In',
         'Usher',
         'Check-In',
@@ -281,7 +291,7 @@ def usher_check_in():
 @role_views.route('/role/usher/search-attendees', methods=['GET'])
 def usher_search_attendees():
     return _render_role_page(
-        'usher_search_attendees.html',
+        'usher/usher_search_attendees.html',
         'Usher - Search Attendees',
         'Usher',
         'Search Attendees',
@@ -291,7 +301,7 @@ def usher_search_attendees():
 @role_views.route('/role/usher/attendance-report', methods=['GET'])
 def usher_attendance_report():
     return _render_role_page(
-        'usher_attendance_report.html',
+        'usher/usher_attendance_report.html',
         'Usher - Attendance Report',
         'Usher',
         'Attendance Report',

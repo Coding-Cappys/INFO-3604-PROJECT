@@ -141,7 +141,6 @@ body {
 
 /* Main Content Area */
 .main-content {
-  margin-left: 260px;
   transition: margin-left 0.3s ease;
 }
 
