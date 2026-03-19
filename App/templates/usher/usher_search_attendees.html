@@ -16,6 +16,9 @@
 
     <div class="card shadow-sm">
       <div class="card-body">
+        <button class="btn btn-primary mb-3" onclick="showQR()">
+          Scan QR Code
+        </button>
         <table class="table table-striped" id="attendeeTable">
           <thead>
             <tr>
@@ -32,16 +35,19 @@
               <td>{{ attendee.name }}</td>
               <td>{{ attendee.username }}</td>
               <td>{{ attendee.email }}</td>
+
+              <!-- CHECK-IN BUTTON -->
               <td>
                 <button class="btn btn-sm {{ 'btn-success' if attendee.checked_in else 'btn-secondary' }}"
                         onclick="toggleCheckIn({{ attendee.id }}, this)">
                   {{ 'Checked In' if attendee.checked_in else 'Check In' }}
                 </button>
               </td>
+
             </tr>
             {% else %}
             <tr>
-              <td colspan="4">No attendees found</td>
+              <td colspan="5">No attendees found</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -49,6 +55,22 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal fade" id="gifModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title">QR Code</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <img src="{{ url_for('static', filename='images/iRrhKmHkKY.gif') }}" 
+             class="img-fluid" alt="QR Code">
+      </div>
+    </div>
   </div>
 </div>
 
@@ -85,6 +107,12 @@ function toggleCheckIn(userId, btn){
       }
     })
     .catch(err => alert("Error updating check-in"));
+}
+
+// NEW FUNCTION FOR QR MODAL
+function showQR(){
+  const modal = new bootstrap.Modal(document.getElementById('gifModal'));
+  modal.show();
 }
 </script>
 {% endblock %}
