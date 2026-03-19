@@ -3,15 +3,87 @@
 {% block title %}Judge - Results{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Results</h1>
-      <p class="text-muted">Role: Judge</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Judge &raquo; Results.</p>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>Official Judging Results</h1>
+    <p class="text-muted">Role: Judge</p>
+
+    <!-- Progress indicators -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <h5>Overall Submissions Judged</h5>
+            <div class="progress">
+              <div class="progress-bar bg-success" role="progressbar"
+                   style="width: {{ overall_progress }}%;" aria-valuenow="{{ overall_progress }}"
+                   aria-valuemin="0" aria-valuemax="100">{{ overall_progress }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <h5>Submissions You’ve Judged</h5>
+            <div class="progress">
+              <div class="progress-bar bg-info" role="progressbar"
+                   style="width: {{ personal_progress }}%;" aria-valuenow="{{ personal_progress }}"
+                   aria-valuemin="0" aria-valuemax="100">{{ personal_progress }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <h5>Assigned Judgement Progress</h5>
+            <div class="progress">
+              <div class="progress-bar bg-warning" role="progressbar"
+                   style="width: {{ assigned_progress }}%;" aria-valuenow="{{ assigned_progress }}"
+                   aria-valuemin="0" aria-valuemax="100">{{ assigned_progress }}%</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Top submissions table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>Top Submissions</h5>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Submission ID</th>
+              <th>Presenter</th>
+              <th>Title</th>
+              <th>Theme</th>
+              <th>Type</th>
+              <th>Judge ID</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for submission in judged_submissions %}
+            <tr>
+              <td>{{ submission.id }}</td>
+              <td>{{ submission.presenter }}</td>
+              <td>{{ submission.title }}</td>
+              <td>{{ submission.theme }}</td>
+              <td>{{ submission.type }}</td>
+              <td>{{ submission.judge_id }}</td>
+              <td>{{ submission.score }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted">No judged submissions yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
+</div>
 {% endblock %}

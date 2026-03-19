@@ -98,7 +98,7 @@ def reviewer_statistics():
 @role_views.route('/role/judge/assigned-presentations', methods=['GET'])
 def judge_assigned_presentations():
     return _render_role_page(
-        'judge_assigned_presentations.html',
+        'judge/judge_assigned_presentations.html',
         'Judge - Assigned Presentations',
         'Judge',
         'Assigned Presentations',
@@ -108,7 +108,7 @@ def judge_assigned_presentations():
 @role_views.route('/role/judge/oral-presentations', methods=['GET'])
 def judge_oral_presentations():
     return _render_role_page(
-        'judge_oral_presentations.html',
+        'judge/judge_oral_presentations.html',
         'Judge - Oral Presentations',
         'Judge',
         'Oral Presentations',
@@ -118,7 +118,7 @@ def judge_oral_presentations():
 @role_views.route('/role/judge/poster-sessions', methods=['GET'])
 def judge_poster_sessions():
     return _render_role_page(
-        'judge_poster_sessions.html',
+        'judge/judge_poster_sessions.html',
         'Judge - Poster Sessions',
         'Judge',
         'Poster Sessions',
@@ -128,7 +128,7 @@ def judge_poster_sessions():
 @role_views.route('/role/judge/my-scores', methods=['GET'])
 def judge_my_scores():
     return _render_role_page(
-        'judge_my_scores.html',
+        'judge/judge_my_scores.html',
         'Judge - My Scores',
         'Judge',
         'My Scores',
@@ -138,12 +138,27 @@ def judge_my_scores():
 @role_views.route('/role/judge/results', methods=['GET'])
 def judge_results():
     return _render_role_page(
-        'judge_results.html',
+        'judge/judge_results.html',
         'Judge - Results',
         'Judge',
         'Results',
     )
 
+@role_views.route('/role/judge/forms', methods=['GET'])
+def judge_forms():
+    submission = {
+        "id": '1',
+        "presenter": "Prof. Venkatesan Sundaram",
+        "title": "Sustainable Futures: Building Resilient Communities",
+        "theme": "Education, Culture, Sports, Equality, Law and Governance"
+    }
+    
+    return _render_role_page(
+        'judge/judge_forms.html',
+        'Judge - Forms',
+        'Judge',
+        'Forms',
+    )
 
 # Attendee
 @role_views.route('/role/attendee/schedule-agenda', methods=['GET'])
