@@ -3,14 +3,69 @@
 {% block title %}Administrator - Review Management{% endblock %}
 
 {% block content %}
-  <div class="row">
+  <div class="row mb-3">
     <div class="col-lg-10">
       <h1>Review Management</h1>
       <p class="text-muted">Role: Administrator</p>
-      <div class="card shadow-sm">
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center">
         <div class="card-body">
-          <p class="mb-0">Placeholder page for Administrator &raquo; Review Management.</p>
+          <h6>Total Assignments</h6>
+          <h3>{{ total_assignments }}</h3>
         </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center bg-success text-white">
+        <div class="card-body">
+          <h6>Reviewed</h6>
+          <h3>{{ reviewed }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center bg-warning text-dark">
+        <div class="card-body">
+          <h6>Pending</h6>
+          <h3>{{ pending }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Recent Review Assignments</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Submission</th>
+              <th>Reviewer</th>
+              <th>Assigned At</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if assignments %}
+              {% for assignment in assignments %}
+              <tr>
+                <td>{{ assignment.id }}</td>
+                <td>{{ assignment.submission.title if assignment.submission else 'N/A' }}</td>
+                <td>{{ assignment.reviewer.username if assignment.reviewer else 'N/A' }}</td>
+                <td>{{ assignment.assigned_at.strftime('%Y-%m-%d') if assignment.assigned_at else 'N/A' }}</td>
+                <td>{{ assignment.status or (assignment.review.decision if assignment.review else 'Pending') }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" class="text-center">No review assignments found.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+
+{% block title %}Judging Form{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-10">
+    <h1>Principal's Award 2026: Official Judging Form</h1>
+    <p class="text-muted">Role: Judge</p>
+
+    <!-- Submission details -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h4>{{ submission.title }}</h4>
+        <p><strong>Presenter:</strong> {{ submission.presenter }}</p>
+        <p><strong>Theme:</strong> {{ submission.theme }}</p>
+      </div>
+    </div>
+
+    <!-- Judging criteria form -->
+    <form method="POST" action="{{ url_for('role_views.submit_judgment', submission_id=submission.id) }}">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5>Evaluation Criteria</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Organization and Structure</label>
+            <select name="organization" class="form-select" required>
+              {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Understanding and Mastery</label>
+            <select name="understanding" class="form-select" required>
+              {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Presentation Skills</label>
+            <select name="skills" class="form-select" required>
+              {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Visual Design</label>
+            <select name="design" class="form-select" required>
+              {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Content Quality</label>
+            <select name="content" class="form-select" required>
+              {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Submit buttons -->
+          <div class="d-flex justify-content-between mt-4">
+            <button type="submit" name="decision" value="yes" class="btn btn-success">Submit Judgment</button>
+            <a href="{{ url_for('role_views.judge_assigned_presentations') }}" class="btn btn-secondary">Back to Submissions</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

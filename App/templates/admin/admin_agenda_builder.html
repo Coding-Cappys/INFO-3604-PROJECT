@@ -3,14 +3,66 @@
 {% block title %}Administrator - Agenda Builder{% endblock %}
 
 {% block content %}
-  <div class="row">
+  <div class="row mb-3">
     <div class="col-lg-10">
       <h1>Agenda Builder</h1>
       <p class="text-muted">Role: Administrator</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Administrator &raquo; Agenda Builder.</p>
-        </div>
+    </div>
+  </div>
+
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <h5>Approved Presentations (Scheduling)</h5>
+      <p class="text-muted">Assign sessions, slots, and venue for approved presentations.</p>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr><th>ID</th><th>Submission</th><th>Type</th><th>Current Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% if approved_presentations %}
+            {% for p in approved_presentations %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.submission.title if p.submission else 'N/A' }}</td>
+              <td>{{ p.type }}</td>
+              <td>{{ p.status }}</td>
+              <td><button class="btn btn-sm btn-outline-primary">Assign Session</button></td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr><td colspan="5" class="text-center">No approved presentations.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5>Current Sessions</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr><th>ID</th><th>Title</th><th>Date</th><th>Time Slot</th><th>Venue</th></tr>
+          </thead>
+          <tbody>
+            {% if sessions %}
+              {% for session in sessions %}
+              <tr>
+                <td>{{ session.id }}</td>
+                <td>{{ session.title }}</td>
+                <td>{{ session.date.strftime('%Y-%m-%d') if session.date else 'N/A' }}</td>
+                <td>{{ session.time_slot or 'N/A' }}</td>
+                <td>{{ session.venue or 'N/A' }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" class="text-center">No sessions yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

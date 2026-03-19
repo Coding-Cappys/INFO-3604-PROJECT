@@ -24,7 +24,8 @@ class User(db.Model):
     affiliation = db.Column(db.String(256), nullable=True)
     discipline = db.Column(db.String(256), nullable=True)
     bio = db.Column(db.Text, nullable=True)
-
+    checked_in = db.Column(db.Boolean, default=False)
+    
     # Relationships
     submissions = db.relationship("Submission", back_populates="creator", lazy="dynamic")
     submission_authors = db.relationship("SubmissionAuthor", back_populates="user", lazy="dynamic")
