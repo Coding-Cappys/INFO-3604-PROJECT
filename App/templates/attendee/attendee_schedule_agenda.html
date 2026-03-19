@@ -36,7 +36,7 @@
               <td>
                 <button class="btn btn-sm {{ 'btn-success' if event.rsvp else 'btn-secondary' }}"
                         onclick="toggleRSVP({{ event.id }}, this)">
-                  {{ 'Going' if event.rsvp else 'RSVP' }}
+                  {{ 'RSVPed' if event.rsvp else 'RSVP' }}
                 </button>
               </td>
 
@@ -92,7 +92,7 @@ function toggleRSVP(eventId, btn){
     .then(res => res.json())
     .then(data => {
       if(data.rsvp){
-        btn.innerText = "Going";
+        btn.innerText = "RSVPed";
         btn.classList.remove("btn-secondary");
         btn.classList.add("btn-success");
       } else {
@@ -100,7 +100,8 @@ function toggleRSVP(eventId, btn){
         btn.classList.remove("btn-success");
         btn.classList.add("btn-secondary");
       }
-    });
+    })
+    .catch(err => alert("Error updating RSVP"));
 }
 
 // Q&A MODAL

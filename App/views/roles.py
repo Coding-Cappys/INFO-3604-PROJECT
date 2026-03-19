@@ -152,39 +152,42 @@ def judge_results():
 # Attendee
 @role_views.route('/role/attendee/schedule-agenda', methods=['GET'])
 def attendee_schedule_agenda():
-    # TEMP DATA (replace with DB later)
-    events = [
-        {
-            "id": 1,
-            "title": "Opening Ceremony",
-            "date": "2026-04-01",
-            "time": "09:00 AM",
-            "presenter": None,
-            "location": "Main Hall",
-            "rsvp": False
-        },
-        {
-            "id": 2,
-            "title": "AI in Healthcare",
-            "date": "2026-04-01",
-            "time": "10:00 AM",
-            "presenter": "Dr. Smith",
-            "location": "Room A",
-            "rsvp": True
-        },
-        {
-            "id": 3,
-            "title": "Closing Ceremony",
-            "date": "2026-04-01",
-            "time": "05:00 PM",
-            "presenter": None,
-            "location": "Main Hall",
-            "rsvp": False
-        }
-    ]
+    from App.models import Event
+
+    events_db = Event.query.order_by(Event.date, Event.time).all()
+
+    events = []
+
+    for e in events_db:
+        events.append({
+            "id": e.id,
+            "title": e.title,
+            "date": e.date.strftime("%Y-%m-%d") if e.date else "TBD",
+            "time": e.time.strftime("%I:%M %p") if e.time else "TBD",
+            "presenter": "N/A",  # update later if linked to presentation
+            "location": e.location,
+            "rsvp": False  # update later with real RSVP system
+        })
 
     return render_template('attendee/attendee_schedule_agenda.html', events=events)
 
+from flask import jsonify, request
+from App import db
+from App.models import Event  # Make sure Event is imported
+
+@role_views.route('/role/attendee/rsvp/<int:event_id>', methods=['POST'])
+def rsvp_event(event_id):
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({"error": "Event not found"}), 404
+
+    event.rsvp = not event.rsvp
+    db.session.commit()
+
+    return jsonify({
+        "event_id": event.id,
+        "rsvp": event.rsvp
+    })
 
 @role_views.route('/role/attendee/my-schedule', methods=['GET'])
 def attendee_my_schedule():
