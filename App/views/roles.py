@@ -152,12 +152,38 @@ def judge_results():
 # Attendee
 @role_views.route('/role/attendee/schedule-agenda', methods=['GET'])
 def attendee_schedule_agenda():
-    return _render_role_page(
-        'attendee_schedule_agenda.html',
-        'Attendee - Schedule & Agenda',
-        'Attendee',
-        'Schedule & Agenda',
-    )
+    # TEMP DATA (replace with DB later)
+    events = [
+        {
+            "id": 1,
+            "title": "Opening Ceremony",
+            "date": "2026-04-01",
+            "time": "09:00 AM",
+            "presenter": None,
+            "location": "Main Hall",
+            "rsvp": False
+        },
+        {
+            "id": 2,
+            "title": "AI in Healthcare",
+            "date": "2026-04-01",
+            "time": "10:00 AM",
+            "presenter": "Dr. Smith",
+            "location": "Room A",
+            "rsvp": True
+        },
+        {
+            "id": 3,
+            "title": "Closing Ceremony",
+            "date": "2026-04-01",
+            "time": "05:00 PM",
+            "presenter": None,
+            "location": "Main Hall",
+            "rsvp": False
+        }
+    ]
+
+    return render_template('attendee/attendee_schedule_agenda.html', events=events)
 
 
 @role_views.route('/role/attendee/my-schedule', methods=['GET'])
