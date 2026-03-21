@@ -199,20 +199,20 @@ def attendee_my_schedule():
     )
 
 
-@role_views.route('/role/attendee/presentations', methods=['GET'])
-def attendee_presentations():
+@role_views.route('/role/attendee/event-digest', methods=['GET'])
+def attendee_event_digest():
     return _render_role_page(
-        'attendee_presentations.html',
-        'Attendee - Presentations',
+        'attendee/attendee_event_digest.html',
+        'Attendee - Event Digest',
         'Attendee',
-        'Presentations',
+        'Event Digest',
     )
 
 
 @role_views.route('/role/attendee/my-qr-code', methods=['GET'])
 def attendee_my_qr_code():
     return _render_role_page(
-        'attendee_my_qr_code.html',
+        'attendee/attendee_my_qr_code.html',
         'Attendee - My QR Code',
         'Attendee',
         'My QR Code',
@@ -222,7 +222,7 @@ def attendee_my_qr_code():
 @role_views.route('/role/attendee/qa-feedback', methods=['GET'])
 def attendee_qa_feedback():
     return _render_role_page(
-        'attendee_qa_feedback.html',
+        'attendee/attendee_qa_feedback.html',
         'Attendee - Q&A & Feedback',
         'Attendee',
         'Q&A & Feedback',
