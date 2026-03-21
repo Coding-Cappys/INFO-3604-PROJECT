@@ -272,25 +272,25 @@ def usher_my_sessions():
     )
 
 
+# @role_views.route('/role/usher/check-in', methods=['GET'])
+# def usher_check_in():
+#     return _render_role_page(
+#         'usher_check_in.html',
+#         'Usher - Check-In',
+#         'Usher',
+#         'Check-In',
+#     )
+
+
 @role_views.route('/role/usher/check-in', methods=['GET'])
 def usher_check_in():
-    return _render_role_page(
-        'usher_check_in.html',
-        'Usher - Check-In',
-        'Usher',
-        'Check-In',
-    )
-
-
-@role_views.route('/role/usher/search-attendees', methods=['GET'])
-def usher_search_attendees():
     attendees = db.session.execute(
         db.select(User).filter_by(role=Role.Attendee)
     ).scalars().all()
 
     return render_template(
-        'usher/usher_search_attendees.html',
-        title='Usher - Search Attendees',
+        'usher/usher_check_in.html',
+        title='Usher - Check-In',
         attendees=attendees
     )
 
@@ -307,7 +307,7 @@ def toggle_checkin(user_id):
 @role_views.route('/role/usher/attendance-report', methods=['GET'])
 def usher_attendance_report():
     return _render_role_page(
-        'usher_attendance_report.html',
+        'usher/usher_attendance_report.html',
         'Usher - Attendance Report',
         'Usher',
         'Attendance Report',
