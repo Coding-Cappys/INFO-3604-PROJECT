@@ -6,7 +6,20 @@
 <div class="row">
   <div class="col-lg-10">
     <h1>Check-In Attendees</h1>
-    <p class="text-muted">Role: Usher</p>
+    <p class="text-muted">Record attendance for your assigned session.</p>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <form method="GET" action="{{ url_for('role_views.usher_check_in') }}" class="d-flex gap-2">
+          <select class="form-select" name="session_id">
+            {% for session in sessions %}
+            <option value="{{ session.id }}" {% if selected_session and selected_session.id == session.id %}selected{% endif %}>{{ session.title }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-dark" type="submit">Load Session</button>
+        </form>
+      </div>
+    </div>
 
     <!-- SEARCH BAR -->
     <div class="card shadow-sm mb-3">
@@ -44,9 +57,9 @@
               <td>{{ attendee.email }}</td>
 
               <td>
-                <button class="btn btn-sm {{ 'btn-success' if attendee.checked_in else 'btn-secondary' }}"
+                <button class="btn btn-sm {{ 'btn-success' if attendee.id in checked_in_ids else 'btn-secondary' }}"
                         onclick="toggleCheckIn({{ attendee.id }}, this)">
-                  {{ 'Checked In' if attendee.checked_in else 'Check In' }}
+                  {{ 'Checked In' if attendee.id in checked_in_ids else 'Check In' }}
                 </button>
               </td>
             </tr>
@@ -100,7 +113,8 @@ function filterCheckInList() {
 }
 
 function toggleCheckIn(userId, btn){
-  fetch(`/role/usher/checkin/${userId}`, { method: "POST" })
+  {% if selected_session %}
+  fetch(`/workflow/usher/sessions/{{ selected_session.id }}/checkin/${userId}`, { method: "POST" })
     .then(res => res.json())
     .then(data => {
       if(data.checked_in){
@@ -114,6 +128,7 @@ function toggleCheckIn(userId, btn){
       }
     })
     .catch(err => alert("Error updating check-in"));
+  {% endif %}
 }
 
 function showQRModal(){

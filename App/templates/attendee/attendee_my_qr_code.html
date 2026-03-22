@@ -10,19 +10,12 @@
 
       <div class="card shadow-sm p-4">
         <div class="card-body">
-          
-          <!-- QR Code Image -->
-          <img src="{{ url_for('static', filename='images/qrcode.jpg') }}" 
-               alt="QR Code" 
-               class="img-fluid mb-4" 
-               style="max-width: 300px;">
-
-          <!-- Instructions -->
+          <div class="display-6 fw-bold mb-3">{{ qr_code.code }}</div>
+          <img src="{{ url_for('static', filename='images/qrcode.jpg') }}" alt="QR Code" class="img-fluid mb-4" style="max-width: 220px;">
           <h5>Please present this QR Code to the usher for check-in.</h5>
           <p class="text-muted">
-            Show this QR code upon arrival so the usher can scan and check you in quickly.
+            Show this QR code or the code string above upon arrival so the usher can record attendance quickly.
           </p>
-
         </div>
       </div>
     </div>

@@ -12,6 +12,37 @@
 
   <div class="card mb-3 shadow-sm">
     <div class="card-body">
+      <h5>Create Session</h5>
+      <form method="POST" action="{{ url_for('workflow_views.create_session_action') }}">
+        <div class="row g-3">
+          <div class="col-md-3"><input class="form-control" name="title" placeholder="Session title" required></div>
+          <div class="col-md-2"><input class="form-control" type="date" name="date"></div>
+          <div class="col-md-2"><input class="form-control" name="time_slot" placeholder="09:00 - 10:00"></div>
+          <div class="col-md-2"><input class="form-control" name="venue" placeholder="Venue"></div>
+          <div class="col-md-2">
+            <select class="form-select" name="track_id">
+              <option value="">Track</option>
+              {% for track in tracks %}
+              <option value="{{ track.id }}">{{ track.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-1">
+            <select class="form-select" name="usher_ids">
+              <option value="">Usher</option>
+              {% for usher in ushers %}
+              <option value="{{ usher.id }}">{{ usher.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-dark btn-sm mt-3" type="submit">Create Session</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
       <h5>Approved Presentations (Scheduling)</h5>
       <p class="text-muted">Assign sessions, slots, and venue for approved presentations.</p>
       <div class="table-responsive">
@@ -25,9 +56,22 @@
             <tr>
               <td>{{ p.id }}</td>
               <td>{{ p.submission.title if p.submission else 'N/A' }}</td>
-              <td>{{ p.type }}</td>
-              <td>{{ p.status }}</td>
-              <td><button class="btn btn-sm btn-outline-primary">Assign Session</button></td>
+              <td>{{ p.type.value if p.type else 'N/A' }}</td>
+              <td>{{ p.status.value if p.status else 'N/A' }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('workflow_views.schedule_presentation_action', presentation_id=p.id) }}" class="d-flex gap-2">
+                  <select class="form-select form-select-sm" name="session_id">
+                    {% for session in sessions %}
+                    <option value="{{ session.id }}">{{ session.title }}</option>
+                    {% endfor %}
+                  </select>
+                  <input class="form-control form-control-sm" name="duration_minutes" placeholder="mins" style="max-width:90px;">
+                  {% if p.type.value == 'Poster' %}
+                  <input class="form-control form-control-sm" name="poster_location" placeholder="Poster loc">
+                  {% endif %}
+                  <button class="btn btn-sm btn-outline-primary" type="submit">Assign</button>
+                </form>
+              </td>
             </tr>
             {% endfor %}
             {% else %}
@@ -45,7 +89,7 @@
       <div class="table-responsive">
         <table class="table table-sm table-striped">
           <thead>
-            <tr><th>ID</th><th>Title</th><th>Date</th><th>Time Slot</th><th>Venue</th></tr>
+            <tr><th>ID</th><th>Title</th><th>Date</th><th>Time Slot</th><th>Venue</th><th>Ushers</th></tr>
           </thead>
           <tbody>
             {% if sessions %}
@@ -56,10 +100,11 @@
                 <td>{{ session.date.strftime('%Y-%m-%d') if session.date else 'N/A' }}</td>
                 <td>{{ session.time_slot or 'N/A' }}</td>
                 <td>{{ session.venue or 'N/A' }}</td>
+                <td>{{ session.ushers|map(attribute='username')|join(', ') or 'None' }}</td>
               </tr>
               {% endfor %}
             {% else %}
-              <tr><td colspan="5" class="text-center">No sessions yet.</td></tr>
+              <tr><td colspan="6" class="text-center">No sessions yet.</td></tr>
             {% endif %}
           </tbody>
         </table>

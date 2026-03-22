@@ -3,15 +3,28 @@
 {% block title %}Attendee - Event Digest{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Event Digest</h1>
-      <p class="text-muted">Role: Attendee</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Attendee &raquo; Presentations.</p>
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Event Digest</h1>
+    <p class="text-muted">Scheduled presentations and accepted festival content.</p>
+    {% for presentation in presentations %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5>{{ presentation.submission.title if presentation.submission else 'Untitled' }}</h5>
+            <p class="text-muted mb-0">
+              {{ presentation.type.value if presentation.type else 'N/A' }}
+              {% if presentation.session %}| {{ presentation.session.title }}{% endif %}
+            </p>
+          </div>
+          <span class="badge bg-dark">{{ presentation.status.value if presentation.status else 'N/A' }}</span>
         </div>
       </div>
     </div>
+    {% else %}
+    <div class="alert alert-secondary">No scheduled presentations yet.</div>
+    {% endfor %}
   </div>
+</div>
 {% endblock %}

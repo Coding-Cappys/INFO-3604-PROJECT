@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %}Festival Awards{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Awards & Winners</h1>
+    <p class="text-muted">Published award winners from the judging process.</p>
+    <div class="row g-3">
+      {% for presentation in awarded_presentations %}
+      <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="mb-1">{{ presentation.award.name if presentation.award else 'Award' }}</h5>
+            <p class="text-muted mb-2">{{ presentation.award.category if presentation.award else 'General' }}</p>
+            <p class="mb-1"><strong>Winner:</strong> {{ presentation.submission.title if presentation.submission else 'Untitled' }}</p>
+            <p class="mb-0 text-muted">
+              {{ presentation.type.value if presentation.type else 'N/A' }}
+              {% if presentation.session %}| {{ presentation.session.title }}{% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-12">
+        <div class="alert alert-secondary mb-0">No award winners have been published yet.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

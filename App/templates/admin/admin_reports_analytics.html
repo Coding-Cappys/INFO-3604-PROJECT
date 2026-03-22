@@ -3,19 +3,111 @@
 {% block title %}Administrator - Reports & Analytics{% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
-    <div class="col-lg-10"><h1>Reports & Analytics</h1><p class="text-muted">Role: Administrator</p></div>
-  </div>
-  <div class="row mb-3">
-    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Total Submissions</h6><h3>{{ total_submissions }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Total Review Assignments</h6><h3>{{ total_reviews }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Presentations</h6><h3>{{ total_presentations }}</h3></div></div></div>
-    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Sessions</h6><h3>{{ total_sessions }}</h3></div></div></div>
-  </div>
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Reports & Analytics</h1>
+    <p class="text-muted">System-wide metrics from the active workflow data.</p>
+    <div class="row g-3">
+      {% for key, value in report.items() %}
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <p class="text-uppercase small text-muted mb-1">{{ key }}</p>
+            <h2 class="mb-0">{{ value }}</h2>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
-  <div class="card shadow-sm"><div class="card-body"><h5>Reports Summary</h5><ul>
-    <li>Submission trend: consistent intake across timeline.</li>
-    <li>Review completion: track pending from Review Management.</li>
-    <li>Judging progress: monitor from Judging & Results.</li>
-  </ul></div></div>
+    <div class="card shadow-sm mt-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Export Reports</h5>
+          <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-dark" href="{{ url_for('workflow_views.export_report_action', report_type='submissions') }}">Submissions CSV</a>
+            <a class="btn btn-sm btn-outline-dark" href="{{ url_for('workflow_views.export_report_action', report_type='attendance') }}">Attendance CSV</a>
+            <a class="btn btn-sm btn-outline-dark" href="{{ url_for('workflow_views.export_report_action', report_type='feedback') }}">Feedback CSV</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4 g-4">
+      <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="mb-3">Submission Status Breakdown</h5>
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr><th>Status</th><th>Count</th></tr>
+              </thead>
+              <tbody>
+                {% for row in submission_status_breakdown %}
+                <tr>
+                  <td>{{ row.label }}</td>
+                  <td>{{ row.count }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="mb-3">Presentation Type Breakdown</h5>
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr><th>Type</th><th>Count</th></tr>
+              </thead>
+              <tbody>
+                {% for row in presentation_type_breakdown %}
+                <tr>
+                  <td>{{ row.label }}</td>
+                  <td>{{ row.count }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+      <div class="card-body">
+        <h5 class="mb-3">Session Attendance & Feedback</h5>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>RSVPs</th>
+                <th>Checked In</th>
+                <th>Feedback Entries</th>
+                <th>Average Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in session_attendance %}
+              <tr>
+                <td>{{ row.session.title }}</td>
+                <td>{{ row.rsvp_count }}</td>
+                <td>{{ row.attendance_count }}</td>
+                <td>{{ row.feedback_count }}</td>
+                <td>{{ row.average_rating }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" class="text-center">No session analytics available.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-lg-10">
+  <div class="col-lg-12">
     <h1>Schedule & Agenda</h1>
     <p class="text-muted">View presentations and events</p>
 
@@ -24,26 +24,26 @@
           </thead>
 
           <tbody>
-            {% for event in events %}
+            {% for session in sessions %}
             <tr>
-              <td>{{ event.title }}</td>
-              <td>{{ event.date }}</td>
-              <td>{{ event.time }}</td>
-              <td>{{ event.presenter or 'N/A' }}</td>
-              <td>{{ event.location }}</td>
+              <td>{{ session.title }}</td>
+              <td>{{ session.date.strftime('%Y-%m-%d') if session.date else 'TBD' }}</td>
+              <td>{{ session.time_slot or 'TBD' }}</td>
+              <td>{{ session.chair.name if session.chair else 'N/A' }}</td>
+              <td>{{ session.venue or 'TBD' }}</td>
 
               <!-- RSVP BUTTON -->
               <td>
-                <button class="btn btn-sm {{ 'btn-success' if event.rsvp else 'btn-secondary' }}"
-                        onclick="toggleRSVP({{ event.id }}, this)">
-                  {{ 'RSVPed' if event.rsvp else 'RSVP' }}
+                <button class="btn btn-sm {{ 'btn-success' if session.id in rsvp_session_ids else 'btn-secondary' }}"
+                        onclick="toggleRSVP({{ session.id }}, this)">
+                  {{ 'RSVPed' if session.id in rsvp_session_ids else 'RSVP' }}
                 </button>
               </td>
 
               <!-- Q&A BUTTON -->
               <td>
                 <button class="btn btn-sm btn-primary"
-                        onclick="openQnA('{{ event.title }}')">
+                        onclick="openQnA('{{ session.title }}')">
                   Q&A
                 </button>
               </td>
@@ -88,7 +88,7 @@
 
 <script>
 function toggleRSVP(eventId, btn){
-  fetch(`/role/attendee/rsvp/${eventId}`, { method: "POST" })
+  fetch(`/workflow/attendee/sessions/${eventId}/rsvp`, { method: "POST" })
     .then(res => res.json())
     .then(data => {
       if(data.rsvp){

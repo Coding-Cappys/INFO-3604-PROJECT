@@ -30,6 +30,10 @@
               <div class="collapse navbar-collapse" id="navbarNav">
                   <ul class="navbar-nav ms-auto">
                       <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_schedule') }}">Schedule</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_presentations') }}">Presentations</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_digest') }}">Digest</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_awards') }}">Awards</a></li>
                       {% if is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="/identify">My Profile</a></li>
                         <li class="nav-item dropdown">
@@ -186,6 +190,18 @@
       <main class="main-content flex-grow-1">
           <div class="header-accent"></div>
           <div class="container-fluid" id="content" style="padding: 2rem 1rem;">
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  <div class="mb-3">
+                    {% for message in messages %}
+                      <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endwith %}
               {% block content %}{% endblock %}
           </div>
       </main>
@@ -227,7 +243,7 @@
 
         // Apply role-based navigation on load (client-side only)
         try {
-            const storedRole = localStorage.getItem('user_role');
+            const storedRole = {{ ("'" ~ current_user.role.value.lower() ~ "'")|safe if current_user else "localStorage.getItem('user_role')" }};
             applyRoleNav(storedRole);
         } catch (err) {
             applyRoleNav(null);

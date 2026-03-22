@@ -1,54 +1,21 @@
 {% extends 'layout.html' %}
 
-{% block title %}Judge - Poster Submissions{% endblock %}
+{% block title %}Judge - Poster Sessions{% endblock %}
 
 {% block content %}
 <div class="row">
-  <div class="col-lg-10">
-    <h1>Poster Submissions</h1>
-    <p class="text-muted">Role: Judge</p>
-    <p class="mb-3">View assigned submissions for Judging.</p>
-
-    <div class="card shadow-sm">
+  <div class="col-lg-12">
+    <h1>Poster Sessions</h1>
+    {% for assignment in assignments %}
+    <div class="card shadow-sm mb-3">
       <div class="card-body">
-        <!-- Search bar -->
-        <form method="GET" action="{{ url_for('role_views.judge_poster_sessions') }}" class="mb-3 d-flex">
-          <input type="text" name="search" class="form-control me-2" placeholder="Search submissions...">
-          <button type="submit" class="btn btn-outline-secondary">Search</button>
-        </form>
-
-        <!-- Submissions table -->
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Submission ID</th>
-              <th>Presenter</th>
-              <th>Title</th>
-              <th>Theme</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for submission in submissions %}
-            <tr>
-              <td>{{ submission.id }}</td>
-              <td>{{ submission.presenter }}</td>
-              <td>{{ submission.title }}</td>
-              <td>{{ submission.theme }}</td>
-              <td>
-                <a href="{{ url_for('role_views.judge_submission', submission_id=submission.id) }}"
-                   class="btn btn-primary btn-sm">Judge</a>
-              </td>
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="5" class="text-center text-muted">No poster submissions assigned.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <strong>{{ assignment.presentation.submission.title }}</strong>
+        <div class="text-muted">Poster location: {{ assignment.presentation.poster_location or 'TBD' }}</div>
       </div>
     </div>
+    {% else %}
+    <div class="alert alert-secondary">No poster presentations assigned.</div>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

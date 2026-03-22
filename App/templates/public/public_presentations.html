@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block title %}Published Presentations{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1>Published Presentations</h1>
+        <p class="text-muted mb-0">Accepted and scheduled research presentations available to the public.</p>
+      </div>
+      <form method="GET" class="d-flex gap-2">
+        <select class="form-select" name="type">
+          <option value="">All Types</option>
+          <option value="Oral" {% if filter_type == 'Oral' %}selected{% endif %}>Oral</option>
+          <option value="Poster" {% if filter_type == 'Poster' %}selected{% endif %}>Poster</option>
+        </select>
+        <button class="btn btn-dark" type="submit">Filter</button>
+      </form>
+    </div>
+    {% for presentation in presentations %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="mb-1">
+              <a class="text-decoration-none" href="{{ url_for('index_views.public_presentation_detail', presentation_id=presentation.id) }}">
+                {{ presentation.submission.title if presentation.submission else 'Untitled' }}
+              </a>
+            </h5>
+            <p class="text-muted mb-2">
+              {{ presentation.type.value if presentation.type else 'N/A' }}
+              {% if presentation.session %}| {{ presentation.session.title }} at {{ presentation.session.venue }}{% endif %}
+            </p>
+            {% set latest = latest_submission_version(presentation.submission) if presentation.submission else None %}
+            <p class="mb-0">{{ latest.abstract if latest else 'Abstract unavailable.' }}</p>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-dark">{{ presentation.status.value if presentation.status else 'N/A' }}</span>
+            {% if presentation.award %}
+            <div class="mt-2"><span class="badge bg-warning text-dark">{{ presentation.award.name }}</span></div>
+            {% endif %}
+            <div class="mt-2">
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('index_views.public_presentation_detail', presentation_id=presentation.id) }}">View Detail</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-secondary">No presentations match the selected filter.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

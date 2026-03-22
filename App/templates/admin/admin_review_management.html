@@ -36,6 +36,36 @@
     </div>
   </div>
 
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="mb-3">Assign Reviewer</h5>
+      <div class="row g-3">
+        {% for submission in submitted_submissions %}
+        <div class="col-lg-6">
+          <form method="POST" action="{{ url_for('workflow_views.assign_reviewer_action', submission_id=submission.id) }}" class="border rounded p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <strong>{{ submission.title }}</strong>
+                <div class="text-muted small">{{ submission.status.value }}</div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <select class="form-select form-select-sm" name="reviewer_id">
+                {% for reviewer in reviewers %}
+                <option value="{{ reviewer.id }}">{{ reviewer.name or reviewer.username }}</option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-sm btn-dark" type="submit">Assign</button>
+            </div>
+          </form>
+        </div>
+        {% else %}
+        <div class="col-12 text-muted">No submitted abstracts are awaiting reviewer assignment.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
   <div class="card shadow-sm">
     <div class="card-body">
       <h5 class="mb-3">Recent Review Assignments</h5>
