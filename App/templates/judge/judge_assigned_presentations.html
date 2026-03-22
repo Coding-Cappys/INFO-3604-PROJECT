@@ -3,15 +3,52 @@
 {% block title %}Judge - Assigned Presentations{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Assigned Presentations</h1>
-      <p class="text-muted">Role: Judge</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Judge &raquo; Assigned Presentations.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>Assigned Presentations</h1>
+    <p class="text-muted">Role: Judge</p>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <!-- Search bar -->
+        <form method="GET" action="{{ url_for('role_views.judge_assigned_presentations') }}" class="mb-3 d-flex">
+          <input type="text" name="search" class="form-control me-2" placeholder="Search submissions...">
+          <button type="submit" class="btn btn-outline-secondary">Search</button>
+        </form>
+
+        <!-- Submissions table -->
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Submission ID</th>
+              <th>Creator ID</th>
+              <th>Title</th>
+              <th>Theme</th>
+              <th>Date Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for submission in submissions %}
+            <tr>
+              <td>{{ submission.id }}</td>
+              <td>{{ submission.creator_id }}</td>
+              <td>{{ submission.title }}</td>
+              <td>{{ submission.submittedid_id }}</td>
+              <td>
+                <a href="{{ url_for('judge_submission', submission_id=submission.id) }}" class="btn btn-primary btn-sm">
+                  Judge
+                </a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">No submissions assigned.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}

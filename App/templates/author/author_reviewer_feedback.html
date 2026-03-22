@@ -4,14 +4,138 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-lg-10">
+    <div class="col-lg-12">
       <h1>Reviewer Feedback</h1>
-      <p class="text-muted">Role: Author</p>
-      <div class="card shadow-sm">
+      <p class="text-muted">Role: Author — view consolidated feedback and reviewer comments for your submissions</p>
+
+      <div class="card shadow-sm mb-4">
         <div class="card-body">
-          <p class="mb-0">Placeholder page for Author &raquo; Reviewer Feedback.</p>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="border-bottom">
+                <tr>
+                  <th style="width:120px">ID</th>
+                  <th>Title</th>
+                  <th style="width:240px">Theme</th>
+                  <th style="width:160px">Status</th>
+                  <th style="width:140px">Reviews</th>
+                  <th style="width:120px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if submissions %}
+                  {% for sub in submissions %}
+                    <tr>
+                      <td><strong>{{ sub.code or ('SUB-' + (sub.id|string).zfill(3)) }}</strong></td>
+                      <td>{{ sub.title }}</td>
+                      <td class="text-truncate">{{ sub.theme }}</td>
+                      <td>
+                        {% if sub.status == 'in_review' %}
+                          <span class="badge rounded-pill bg-info text-dark">In Review</span>
+                        {% elif sub.status == 'needs_revision' %}
+                          <span class="badge rounded-pill bg-warning text-dark">Needs Revision</span>
+                        {% elif sub.status == 'rejected' %}
+                          <span class="badge rounded-pill bg-danger">Rejected</span>
+                        {% elif sub.status == 'accepted_poster' %}
+                          <span class="badge rounded-pill bg-success text-dark">Accepted for Poster</span>
+                        {% elif sub.status == 'accepted_oral' %}
+                          <span class="badge rounded-pill bg-success text-dark">Accepted for Oral</span>
+                        {% else %}
+                          <span class="badge rounded-pill bg-secondary">{{ sub.status }}</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ (sub.reviews|length) if sub.reviews is defined else 0 }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#feedbackModal" onclick="viewFeedback({{ sub.id }})">View Feedback</button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="6" class="text-muted">No submissions found. Create a submission to receive reviewer feedback.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback Modal -->
+      <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="feedbackModalLabel">Reviewer Feedback</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h5 id="fbTitle" class="mb-1"></h5>
+              <p id="fbMeta" class="text-muted small mb-3"></p>
+
+              <div id="fbConsolidated" class="mb-3">
+                <h6>Consolidated Feedback</h6>
+                <p class="text-muted" id="fbConsolidatedText"></p>
+              </div>
+
+              <div id="fbList">
+                <h6>Individual Reviews</h6>
+                <div id="fbReviews" class="list-group"></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 {% endblock %}
+
+<script>
+  // Prepare submissions data for client-side use. Use server-provided `submissions` if available.
+  const submissionsData = (function(){
+    try {
+      return {{ submissions|tojson }};
+    } catch(e) {
+      return [];
+    }
+  })();
+
+  function viewFeedback(id) {
+    const sub = submissionsData && submissionsData.find(s => s.id == id);
+    if (!sub) {
+      document.getElementById('fbTitle').textContent = 'Submission not found';
+      document.getElementById('fbMeta').textContent = '';
+      document.getElementById('fbConsolidatedText').textContent = '';
+      document.getElementById('fbReviews').innerHTML = '';
+      return;
+    }
+
+    document.getElementById('fbTitle').textContent = sub.title || 'Untitled';
+    document.getElementById('fbMeta').textContent = (sub.code ? sub.code + ' • ' : '') + (sub.theme || '') + (sub.submissionDate ? ' • ' + sub.submissionDate : '');
+    document.getElementById('fbConsolidatedText').textContent = sub.consolidated || (sub.summary || 'No consolidated feedback available.');
+
+    const reviewsEl = document.getElementById('fbReviews');
+    reviewsEl.innerHTML = '';
+    const reviews = sub.reviews || [];
+    if (reviews.length === 0) {
+      reviewsEl.innerHTML = '<div class="text-muted small">No individual reviews submitted yet.</div>';
+    } else {
+      reviews.forEach((r, idx) => {
+        const div = document.createElement('div');
+        div.className = 'list-group-item';
+        div.innerHTML = `
+          <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1">Reviewer ${r.reviewer_name || (idx+1)}</h6>
+            <small class="text-muted">${r.reviewDate || ''}</small>
+          </div>
+          <p class="mb-1">${r.comments || 'No comments provided.'}</p>
+          <small>Decision: <span class="badge bg-secondary">${r.decision || 'N/A'}</span></small>
+        `;
+        reviewsEl.appendChild(div);
+      });
+    }
+  }
+</script>
