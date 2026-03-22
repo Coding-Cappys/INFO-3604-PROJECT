@@ -206,13 +206,13 @@ def attendee_my_schedule():
     )
 
 
-@role_views.route('/role/attendee/presentations', methods=['GET'])
-def attendee_presentations():
+@role_views.route('/role/attendee/event-digest', methods=['GET'])
+def attendee_event_digest():
     return _render_role_page(
         'attendee/attendee_presentations.html',
         'Attendee - Presentations',
         'Attendee',
-        'Presentations',
+        'Event Digest',
     )
 
 

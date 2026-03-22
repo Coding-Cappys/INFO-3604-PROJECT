@@ -3,13 +3,26 @@
 {% block title %}Attendee - My QR Code{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>My QR Code</h1>
+  <div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+      <h1 class="mb-3">My QR Code</h1>
       <p class="text-muted">Role: Attendee</p>
-      <div class="card shadow-sm">
+
+      <div class="card shadow-sm p-4">
         <div class="card-body">
-          <p class="mb-0">Placeholder page for Attendee &raquo; My QR Code.</p>
+          
+          <!-- QR Code Image -->
+          <img src="{{ url_for('static', filename='images/qrcode.jpg') }}" 
+               alt="QR Code" 
+               class="img-fluid mb-4" 
+               style="max-width: 300px;">
+
+          <!-- Instructions -->
+          <h5>Please present this QR Code to the usher for check-in.</h5>
+          <p class="text-muted">
+            Show this QR code upon arrival so the usher can scan and check you in quickly.
+          </p>
+
         </div>
       </div>
     </div>

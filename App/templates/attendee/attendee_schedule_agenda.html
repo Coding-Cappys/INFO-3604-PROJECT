@@ -1,17 +1,129 @@
 {% extends 'layout.html' %}
 
-{% block title %}Attendee - Schedule & Agenda{% endblock %}
+{% block title %}Attendee - Schedule{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Schedule &amp; Agenda</h1>
-      <p class="text-muted">Role: Attendee</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Attendee &raquo; Schedule &amp; Agenda.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>Schedule & Agenda</h1>
+    <p class="text-muted">View presentations and events</p>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Presenter</th>
+              <th>Location</th>
+              <th>RSVP</th>
+              <th>Q&A</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for event in events %}
+            <tr>
+              <td>{{ event.title }}</td>
+              <td>{{ event.date }}</td>
+              <td>{{ event.time }}</td>
+              <td>{{ event.presenter or 'N/A' }}</td>
+              <td>{{ event.location }}</td>
+
+              <!-- RSVP BUTTON -->
+              <td>
+                <button class="btn btn-sm {{ 'btn-success' if event.rsvp else 'btn-secondary' }}"
+                        onclick="toggleRSVP({{ event.id }}, this)">
+                  {{ 'RSVPed' if event.rsvp else 'RSVP' }}
+                </button>
+              </td>
+
+              <!-- Q&A BUTTON -->
+              <td>
+                <button class="btn btn-sm btn-primary"
+                        onclick="openQnA('{{ event.title }}')">
+                  Q&A
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7">No events available</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
+
   </div>
+</div>
+
+<!-- Q&A MODAL -->
+<div class="modal fade" id="qnaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="qnaTitle">Q&A</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <textarea id="questionInput" class="form-control mb-2" placeholder="Ask a question..."></textarea>
+        <button class="btn btn-primary w-100" onclick="submitQuestion()">Submit</button>
+
+        <hr>
+
+        <div id="questionsList">
+          <!-- Questions will go here -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleRSVP(eventId, btn){
+  fetch(`/role/attendee/rsvp/${eventId}`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      if(data.rsvp){
+        btn.innerText = "RSVPed";
+        btn.classList.remove("btn-secondary");
+        btn.classList.add("btn-success");
+      } else {
+        btn.innerText = "RSVP";
+        btn.classList.remove("btn-success");
+        btn.classList.add("btn-secondary");
+      }
+    })
+    .catch(err => alert("Error updating RSVP"));
+}
+
+// Q&A MODAL
+function openQnA(title){
+  document.getElementById("qnaTitle").innerText = "Q&A - " + title;
+  const modal = new bootstrap.Modal(document.getElementById('qnaModal'));
+  modal.show();
+}
+
+function submitQuestion(){
+  const question = document.getElementById("questionInput").value;
+
+  if(!question) return;
+
+  const list = document.getElementById("questionsList");
+  const div = document.createElement("div");
+  div.className = "alert alert-secondary";
+  div.innerText = question;
+
+  list.prepend(div);
+  document.getElementById("questionInput").value = "";
+}
+</script>
+
 {% endblock %}
