@@ -3,15 +3,116 @@
 {% block title %}Usher - Search Attendees{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Search Attendees</h1>
-      <p class="text-muted">Role: Usher</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Usher &raquo; Search Attendees.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>Search Attendees</h1>
+    <p class="text-muted">Role: Usher</p>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by name, username, or email" onkeyup="filterAttendees()">
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <button class="btn btn-primary mb-3" onclick="showQR()">
+          Scan QR Code
+        </button>
+        <table class="table table-striped" id="attendeeTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Check In</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for attendee in attendees %}
+            <tr>
+              <td>{{ attendee.name }}</td>
+              <td>{{ attendee.username }}</td>
+              <td>{{ attendee.email }}</td>
+
+              <!-- CHECK-IN BUTTON -->
+              <td>
+                <button class="btn btn-sm {{ 'btn-success' if attendee.checked_in else 'btn-secondary' }}"
+                        onclick="toggleCheckIn({{ attendee.id }}, this)">
+                  {{ 'Checked In' if attendee.checked_in else 'Check In' }}
+                </button>
+              </td>
+
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5">No attendees found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal fade" id="gifModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title">QR Code</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <img src="{{ url_for('static', filename='images/iRrhKmHkKY.gif') }}" 
+             class="img-fluid" alt="QR Code">
       </div>
     </div>
   </div>
+</div>
+
+<script>
+function filterAttendees() {
+  let input = document.getElementById("searchInput").value.toLowerCase();
+  let rows = document.querySelectorAll("#attendeeTable tbody tr");
+
+  rows.forEach(row => {
+    let name = row.cells[0].innerText.toLowerCase();
+    let username = row.cells[1].innerText.toLowerCase();
+    let email = row.cells[2].innerText.toLowerCase();
+
+    if (name.includes(input) || username.includes(input) || email.includes(input)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+function toggleCheckIn(userId, btn){
+  fetch(`/role/usher/checkin/${userId}`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      if(data.checked_in){
+        btn.innerText = "Checked In";
+        btn.classList.remove("btn-secondary");
+        btn.classList.add("btn-success");
+      } else {
+        btn.innerText = "Check In";
+        btn.classList.remove("btn-success");
+        btn.classList.add("btn-secondary");
+      }
+    })
+    .catch(err => alert("Error updating check-in"));
+}
+
+// NEW FUNCTION FOR QR MODAL
+function showQR(){
+  const modal = new bootstrap.Modal(document.getElementById('gifModal'));
+  modal.show();
+}
+</script>
 {% endblock %}

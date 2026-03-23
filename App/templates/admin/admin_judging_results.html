@@ -3,14 +3,59 @@
 {% block title %}Administrator - Judging & Results{% endblock %}
 
 {% block content %}
-  <div class="row">
+  <div class="row mb-3">
     <div class="col-lg-10">
-      <h1>Judging &amp; Results</h1>
+      <h1>Judging & Results</h1>
       <p class="text-muted">Role: Administrator</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Administrator &raquo; Judging &amp; Results.</p>
-        </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Total Judge Assignments</h6><h3>{{ judge_assignments|length }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-info text-white"><div class="card-body"><h6>Total Scores</h6><h3>{{ total_scores }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-success text-white"><div class="card-body"><h6>Average Score</h6><h3>{{ avg_score }}</h3></div></div></div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h5 class="mb-3">Top Presentation Rankings</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead><tr><th>Presentation ID</th><th>Type</th><th>Avg Score</th></tr></thead>
+          <tbody>
+            {% if top_presentation_scores %}
+              {% for p in top_presentation_scores %}
+              <tr><td>{{ p[0] }}</td><td>{{ p[1] }}</td><td>{{ '%.2f'|format(p[2] or 0) }}</td></tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="3" class="text-center">No ranking data.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5>Latest Judge Assignments</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead><tr><th>ID</th><th>Judge</th><th>Presentation</th><th>Assigned At</th></tr></thead>
+          <tbody>
+            {% if judge_assignments %}
+              {% for assign in judge_assignments %}
+              <tr>
+                <td>{{ assign.id }}</td>
+                <td>{{ assign.judge.username if assign.judge else 'N/A' }}</td>
+                <td>{{ assign.presentation.submission.title if assign.presentation and assign.presentation.submission else 'N/A' }}</td>
+                <td>{{ assign.assigned_at.strftime('%Y-%m-%d') if assign.assigned_at else 'N/A' }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center">No assignments.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

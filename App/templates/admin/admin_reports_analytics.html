@@ -3,15 +3,19 @@
 {% block title %}Administrator - Reports & Analytics{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Reports &amp; Analytics</h1>
-      <p class="text-muted">Role: Administrator</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Administrator &raquo; Reports &amp; Analytics.</p>
-        </div>
-      </div>
-    </div>
+  <div class="row mb-3">
+    <div class="col-lg-10"><h1>Reports & Analytics</h1><p class="text-muted">Role: Administrator</p></div>
   </div>
+  <div class="row mb-3">
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Total Submissions</h6><h3>{{ total_submissions }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Total Review Assignments</h6><h3>{{ total_reviews }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Presentations</h6><h3>{{ total_presentations }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><h6>Sessions</h6><h3>{{ total_sessions }}</h3></div></div></div>
+  </div>
+
+  <div class="card shadow-sm"><div class="card-body"><h5>Reports Summary</h5><ul>
+    <li>Submission trend: consistent intake across timeline.</li>
+    <li>Review completion: track pending from Review Management.</li>
+    <li>Judging progress: monitor from Judging & Results.</li>
+  </ul></div></div>
 {% endblock %}

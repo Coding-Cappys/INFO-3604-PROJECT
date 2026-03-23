@@ -3,15 +3,16 @@
 {% block title %}Administrator - Settings{% endblock %}
 
 {% block content %}
+  <div class="row mb-3">
+    <div class="col-lg-10"><h1>Administrator Settings</h1><p class="text-muted">Role: Administrator</p></div>
+  </div>
   <div class="row">
-    <div class="col-lg-10">
-      <h1>Settings</h1>
-      <p class="text-muted">Role: Administrator</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Administrator &raquo; Settings.</p>
-        </div>
-      </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-3"><div class="card-body"><h5>Conference Information</h5><p><strong>Name:</strong> {{ app_settings.conference_name }}</p><p><strong>Dates:</strong> {{ app_settings.conference_date }}</p></div></div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-3"><div class="card-body"><h5>Review & Judging Settings</h5><p><strong>Reviewers per submission:</strong> {{ app_settings.reviewers_per_submission }}</p><p><strong>Judging Criteria:</strong> {{ app_settings.judging_criteria | join(', ') }}</p></div></div>
     </div>
   </div>
+  <div class="card shadow-sm"><div class="card-body"><h5>Workflow Notes</h5><p>Use this page to coordinate setup and publish schedule data. For now, workflow updates and notifications are managed through the admin dashboard panels.</p></div></div>
 {% endblock %}
