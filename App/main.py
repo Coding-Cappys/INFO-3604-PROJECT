@@ -10,6 +10,7 @@ from App.config import load_config
 
 
 from App.controllers import (
+    initialize,
     setup_jwt,
     add_auth_context
 )
@@ -34,7 +35,7 @@ def create_app(overrides={}):
 
     with app.app_context():
         from App.database import db
-        db.create_all()
+        initialize()
 
 
     jwt = setup_jwt(app)
