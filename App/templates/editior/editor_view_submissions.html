@@ -1,0 +1,105 @@
+{% extends 'layout.html' %}
+
+{% block title %}Author - Create Submission{% endblock %}
+
+{% block content %}
+  <!-- Main content -->
+  <main class="main-content d-flex flex-column" style="min-height: calc(100vh - 56px);">
+    <div class="header-accent"></div>
+ 
+    <!-- Page header -->
+    <div class="page-header-block">
+      <h1>View Submissions – III. Health and Well-being: Issues and advances</h1>
+      <p>View Submissions, see abstracts for your track, map reviewers, view reviews and confirm acceptance of abstracts</p>
+    </div>
+ 
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search submissions…" />
+      </div>
+      <div class="track-select" id="trackFilterBtn">
+        <i class="fas fa-filter"></i> Select Track <i class="fas fa-chevron-down ms-1"></i>
+      </div>
+    </div>
+ 
+    <!-- Submissions table -->
+    <div class="table-wrap flex-grow-1">
+      <table id="submissionsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>R-ID</th>
+            <th>Title</th>
+            <th>Researcher</th>
+            <th class="center">Status</th>
+            <th class="center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="6">
+              <div class="table-loading">
+                <i class="fas fa-circle-notch"></i>
+                Loading submissions…
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+ 
+    <footer class="footer-section mt-auto">
+      <p>&copy; 2026 UWI Principal's Research Awards &amp; Festival. All rights reserved.</p>
+    </footer>
+  </main>
+</div>
+ 
+ 
+<!-- ── Modal: Action Selected ──────────────────────────────────── -->
+<div class="cust-overlay" id="actionOverlay"
+     onclick="closeOnBackdrop(event, 'actionOverlay')">
+  <div class="cust-modal">
+    <button class="modal-back-btn" onclick="closeOverlay('actionOverlay')">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <div class="action-list">
+      <button class="action-item ai-assign" onclick="openAssignModal()">
+        <i class="fas fa-user-plus"></i> Assign Reviewer
+      </button>
+      <button class="action-item ai-oral"
+              onclick="doAction('Confirmed Acceptance for Oral')">
+        <i class="fas fa-check-circle"></i> Confirm Acceptance For Oral
+      </button>
+      <button class="action-item ai-poster"
+              onclick="doAction('Confirmed Acceptance for Poster')">
+        <i class="fas fa-check-circle"></i> Confirm Acceptance For Poster
+      </button>
+      <button class="action-item ai-revise"
+              onclick="doAction('Revision notification sent')">
+        <i class="fas fa-exclamation-circle"></i> Notify Revisions
+      </button>
+      <button class="action-item ai-reject"
+              onclick="doAction('Rejection confirmed')">
+        <i class="fas fa-times-circle"></i> Confirm Rejection
+      </button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ── Modal: Assign Reviewer ──────────────────────────────────── -->
+<div class="cust-overlay" id="reviewerOverlay"
+     onclick="closeOnBackdrop(event, 'reviewerOverlay')">
+  <div class="cust-modal wide">
+    <button class="modal-back-btn" onclick="backToActions()">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <div class="reviewer-list" id="reviewerList">
+      <!-- Populated by main.js openAssignModal() -->
+    </div>
+  </div>
+</div>
+ 
+
+{% endblock %}
