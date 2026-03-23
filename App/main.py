@@ -31,6 +31,12 @@ def create_app(overrides={}):
     configure_uploads(app, photos)
     add_views(app)
     init_db(app)
+
+    with app.app_context():
+        from App.database import db
+        db.create_all()
+
+
     jwt = setup_jwt(app)
     setup_admin(app)
     @jwt.invalid_token_loader
