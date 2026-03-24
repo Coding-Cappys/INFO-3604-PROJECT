@@ -5,7 +5,7 @@ from .supplementary_material import *
 from .submission_author import *
 from .track import *
 from .review import *
-from .review_assignment import *
+from .review_submission import *
 from .presentation import *
 from .session import *
 from .score import *
@@ -17,3 +17,4 @@ from .qr_code import *
 from .feedback import *
 from .report import *
 from .digest import *
+from .editor import *
