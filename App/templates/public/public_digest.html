@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}Festival Digest{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Festival Digest</h1>
+    <p class="text-muted">Published digest entries for the event.</p>
+    {% for digest in digests %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="mb-0">Digest {{ digest.year }}</h5>
+          {% if digest.presentation %}
+          <span class="badge bg-primary">{{ digest.presentation.submission.title if digest.presentation.submission else 'Festival Summary' }}</span>
+          {% endif %}
+        </div>
+        <p class="mb-0">{{ digest.summary }}</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-secondary">No digest content has been published yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

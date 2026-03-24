@@ -3,15 +3,31 @@
 {% block title %}Attendee - My Schedule{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>My Schedule</h1>
-      <p class="text-muted">Role: Attendee</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Attendee &raquo; My Schedule.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>My Schedule</h1>
+    <p class="text-muted">Sessions you have RSVP'd to.</p>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+            <tr><th>Session</th><th>Date</th><th>Venue</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for rsvp in rsvps %}
+            <tr>
+              <td>{{ rsvp.session.title if rsvp.session else 'Unknown' }}</td>
+              <td>{{ rsvp.session.date.strftime('%Y-%m-%d') if rsvp.session and rsvp.session.date else 'TBD' }}</td>
+              <td>{{ rsvp.session.venue if rsvp.session else 'TBD' }}</td>
+              <td>{{ rsvp.status or 'Interested' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center">No sessions selected yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}

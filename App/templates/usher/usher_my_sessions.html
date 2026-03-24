@@ -3,15 +3,19 @@
 {% block title %}Usher - My Sessions{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>My Sessions</h1>
-      <p class="text-muted">Role: Usher</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Usher &raquo; My Sessions.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>My Sessions</h1>
+    {% for session in sessions %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <strong>{{ session.title }}</strong>
+        <div class="text-muted">{{ session.date.strftime('%Y-%m-%d') if session.date else 'TBD' }} | {{ session.time_slot or 'TBD' }} | {{ session.venue or 'TBD' }}</div>
       </div>
     </div>
+    {% else %}
+    <div class="alert alert-secondary">No sessions assigned.</div>
+    {% endfor %}
   </div>
+</div>
 {% endblock %}
