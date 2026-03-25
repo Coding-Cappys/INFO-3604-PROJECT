@@ -43,6 +43,7 @@
                   <th>Submitted At</th>
                   <th>Author</th>
                   <th>Primary Track</th>
+                  <th>Decision</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,10 +56,24 @@
                     <td>{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') if submission.submitted_at else 'N/A' }}</td>
                     <td>{{ submission.creator.username if submission.creator else 'Unknown' }}</td>
                     <td>{{ submission.primary_track.name if submission.primary_track else 'None' }}</td>
+                    <td>
+                      <div class="d-flex gap-2">
+                        <a href="{{ url_for('role_views.submission_detail', submission_id=submission.id) }}" class="btn btn-sm btn-outline-dark">View</a>
+                        <form method="POST" action="{{ url_for('workflow_views.record_decision_action', submission_id=submission.id) }}" class="d-flex gap-2">
+                        <select class="form-select form-select-sm" name="status">
+                          <option value="ChangesRequested">Request Changes</option>
+                          <option value="AcceptedOral">Accept Oral</option>
+                          <option value="AcceptedPoster">Accept Poster</option>
+                          <option value="Rejected">Reject</option>
+                        </select>
+                        <button class="btn btn-sm btn-dark" type="submit">Save</button>
+                        </form>
+                      </div>
+                    </td>
                   </tr>
                   {% endfor %}
                 {% else %}
-                  <tr><td colspan="6" class="text-center">No submissions yet.</td></tr>
+                  <tr><td colspan="7" class="text-center">No submissions yet.</td></tr>
                 {% endif %}
               </tbody>
             </table>

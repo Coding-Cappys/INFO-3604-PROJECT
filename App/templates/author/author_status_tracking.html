@@ -3,15 +3,31 @@
 {% block title %}Author - Status Tracking{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Status Tracking</h1>
-      <p class="text-muted">Role: Author</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Author &raquo; Status Tracking.</p>
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Status Tracking</h1>
+    <p class="text-muted">Track the workflow stage of each submission.</p>
+
+    {% for submission in submissions %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="mb-1">{{ submission.title }}</h5>
+            <p class="text-muted mb-2">{{ submission.primary_track.name if submission.primary_track else 'No primary track' }}</p>
+          </div>
+          <span class="badge bg-dark">{{ submission.status.value }}</span>
+        </div>
+        <div class="row">
+          <div class="col-md-4"><strong>Created:</strong> {{ submission.submitted_at.strftime('%Y-%m-%d') if submission.submitted_at else 'N/A' }}</div>
+          <div class="col-md-4"><strong>Reviews Assigned:</strong> {{ submission.review_assignments.count() }}</div>
+          <div class="col-md-4"><strong>Presentation:</strong> {{ submission.presentation.type.value if submission.presentation else 'Pending decision' }}</div>
         </div>
       </div>
     </div>
+    {% else %}
+    <div class="alert alert-secondary">No submissions to track yet.</div>
+    {% endfor %}
   </div>
+</div>
 {% endblock %}

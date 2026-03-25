@@ -17,4 +17,5 @@ from .qr_code import *
 from .feedback import *
 from .report import *
 from .digest import *
+from .event import *
 from .editor import *

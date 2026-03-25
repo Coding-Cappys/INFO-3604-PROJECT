@@ -1,0 +1,102 @@
+{% extends 'layout.html' %}
+
+{% block title %}Submission Detail{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h1>{{ submission.title }}</h1>
+        <p class="text-muted mb-0">{{ submission.primary_track.name if submission.primary_track else 'No primary track' }}</p>
+      </div>
+      <span class="badge bg-dark">{{ submission.status.value if submission.status else 'N/A' }}</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5>Current Submission Overview</h5>
+            <div class="row">
+              <div class="col-md-6"><strong>Creator:</strong> {{ submission.creator.name or submission.creator.username if submission.creator else 'Unknown' }}</div>
+              <div class="col-md-6"><strong>Keywords:</strong> {{ submission.keywords or 'None' }}</div>
+              <div class="col-md-6 mt-2"><strong>Primary Track:</strong> {{ submission.primary_track.name if submission.primary_track else 'None' }}</div>
+              <div class="col-md-6 mt-2"><strong>Secondary Track:</strong> {{ submission.secondary_track.name if submission.secondary_track else 'None' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5>Version History</h5>
+            {% for version in versions %}
+            <div class="border rounded p-3 mb-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <strong>Version {{ version.version_number }}</strong>
+                <small class="text-muted">{{ version.submitted_at.strftime('%Y-%m-%d %H:%M') if version.submitted_at else 'N/A' }}</small>
+              </div>
+              <p class="mb-2">{{ version.abstract }}</p>
+              <p class="mb-0"><strong>Revision Notes:</strong> {{ version.revision_notes or 'None' }}</p>
+            </div>
+            {% else %}
+            <p class="mb-0 text-muted">No submission versions found.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5>Reviews</h5>
+            {% for assignment in submission.review_assignments %}
+            <div class="border rounded p-3 mb-3">
+              <div class="d-flex justify-content-between">
+                <strong>{{ assignment.reviewer.name or assignment.reviewer.username if assignment.reviewer else 'Unassigned reviewer' }}</strong>
+                <span class="badge {{ 'bg-success' if assignment.review else 'bg-warning text-dark' }}">{{ assignment.review.decision.value if assignment.review else 'Pending' }}</span>
+              </div>
+              <p class="mb-0 mt-2">{{ assignment.review.comments if assignment.review else 'Awaiting review submission.' }}</p>
+            </div>
+            {% else %}
+            <p class="mb-0 text-muted">No review assignments yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5>Supplementary Files</h5>
+            {% for file in supplementary_files %}
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div>
+                <div>{{ file.file_name }}</div>
+                <small class="text-muted">{{ file.file_type or 'file' }}</small>
+              </div>
+              <a href="{{ url_for('workflow_views.download_supplementary_file', file_name=file.file_name) }}" class="btn btn-sm btn-outline-primary">Download</a>
+            </div>
+            {% else %}
+            <p class="mb-0 text-muted">No supplementary files attached.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5>Presentation Status</h5>
+            {% if submission.presentation %}
+            <p><strong>Type:</strong> {{ submission.presentation.type.value }}</p>
+            <p><strong>Status:</strong> {{ submission.presentation.status.value }}</p>
+            <p><strong>Session:</strong> {{ submission.presentation.session.title if submission.presentation.session else 'Unscheduled' }}</p>
+            <p><strong>Venue:</strong> {{ submission.presentation.session.venue if submission.presentation.session else 'TBD' }}</p>
+            <p><strong>Award:</strong> {{ submission.presentation.award.name if submission.presentation.award else 'None' }}</p>
+            {% else %}
+            <p class="mb-0 text-muted">No presentation record created yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

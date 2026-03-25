@@ -3,15 +3,33 @@
 {% block title %}Attendee - Q&A & Feedback{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Q&amp;A &amp; Feedback</h1>
-      <p class="text-muted">Role: Attendee</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Attendee &raquo; Q&amp;A &amp; Feedback.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Q&A & Feedback</h1>
+    <p class="text-muted">Leave session feedback for sessions you attended.</p>
+    {% for session in attended_sessions %}
+    {% set existing = (feedbacks | selectattr('session_id', 'equalto', session.id) | list | first) %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5>{{ session.title }}</h5>
+        <form method="POST" action="{{ url_for('workflow_views.submit_feedback_action', session_id=session.id) }}">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Rating</label>
+              <input type="number" min="1" max="5" class="form-control" name="rating" value="{{ existing.rating if existing else '' }}">
+            </div>
+            <div class="col-md-9">
+              <label class="form-label">Comments</label>
+              <textarea class="form-control" name="comments" rows="3">{{ existing.comments if existing else '' }}</textarea>
+            </div>
+          </div>
+          <button class="btn btn-dark mt-3" type="submit">Save Feedback</button>
+        </form>
       </div>
     </div>
+    {% else %}
+    <div class="alert alert-secondary">Feedback becomes available after you are checked in to a session.</div>
+    {% endfor %}
   </div>
+</div>
 {% endblock %}

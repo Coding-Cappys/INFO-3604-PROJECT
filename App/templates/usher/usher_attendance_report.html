@@ -3,15 +3,30 @@
 {% block title %}Usher - Attendance Report{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-lg-10">
-      <h1>Attendance Report</h1>
-      <p class="text-muted">Role: Usher</p>
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <p class="mb-0">Placeholder page for Usher &raquo; Attendance Report.</p>
-        </div>
+<div class="row">
+  <div class="col-lg-10">
+    <h1>Attendance Report</h1>
+    <p class="text-muted">Attendance summary for sessions assigned to you.</p>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+            <tr><th>Session</th><th>RSVPs</th><th>Checked In</th></tr>
+          </thead>
+          <tbody>
+            {% for row in report_rows %}
+            <tr>
+              <td>{{ row.session.title }}</td>
+              <td>{{ row.rsvp_count }}</td>
+              <td>{{ row.attendance_count }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="text-center">No usher sessions assigned.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}

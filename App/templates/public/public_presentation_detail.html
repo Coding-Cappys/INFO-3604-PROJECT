@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+
+{% block title %}Presentation Detail{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h1 class="h3 mb-1">{{ presentation.submission.title if presentation.submission else 'Untitled' }}</h1>
+            <p class="text-muted mb-0">
+              {{ presentation.type.value if presentation.type else 'N/A' }}
+              {% if presentation.session %}| {{ presentation.session.title }}{% endif %}
+            </p>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-dark">{{ presentation.status.value if presentation.status else 'N/A' }}</span>
+            {% if presentation.award %}
+            <div class="mt-2"><span class="badge bg-warning text-dark">{{ presentation.award.name }}</span></div>
+            {% endif %}
+          </div>
+        </div>
+
+        <h5>Abstract</h5>
+        <p>{{ latest_version.abstract if latest_version else 'No abstract available.' }}</p>
+
+        <h5>Presentation Details</h5>
+        <div class="row">
+          <div class="col-md-6"><strong>Session:</strong> {{ presentation.session.title if presentation.session else 'TBD' }}</div>
+          <div class="col-md-6"><strong>Venue:</strong> {{ presentation.session.venue if presentation.session else 'TBD' }}</div>
+          <div class="col-md-6 mt-2"><strong>Date:</strong> {{ presentation.session.date.strftime('%Y-%m-%d') if presentation.session and presentation.session.date else 'TBD' }}</div>
+          <div class="col-md-6 mt-2"><strong>Time:</strong> {{ presentation.session.time_slot if presentation.session else 'TBD' }}</div>
+          <div class="col-md-6 mt-2"><strong>Track:</strong> {{ presentation.submission.primary_track.name if presentation.submission and presentation.submission.primary_track else 'Unassigned' }}</div>
+          <div class="col-md-6 mt-2"><strong>Poster Location:</strong> {{ presentation.poster_location or 'N/A' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5>Authors</h5>
+        {% for author_link in presentation.submission.authors if presentation.submission %}
+        <div class="border-bottom py-2">
+          <strong>{{ author_link.user.name or author_link.user.username if author_link.user else 'Unknown Author' }}</strong>
+          <div class="text-muted small">{{ author_link.user.affiliation if author_link.user else '' }}</div>
+        </div>
+        {% else %}
+        <p class="mb-0 text-muted">No author details available.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>Related Presentations</h5>
+        {% for related in related_presentations %}
+        <div class="mb-3">
+          <a class="text-decoration-none" href="{{ url_for('index_views.public_presentation_detail', presentation_id=related.id) }}">
+            {{ related.submission.title if related.submission else 'Untitled' }}
+          </a>
+          <div class="text-muted small">{{ related.type.value if related.type else 'N/A' }}</div>
+        </div>
+        {% else %}
+        <p class="mb-0 text-muted">No related presentations available.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

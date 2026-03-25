@@ -14,5 +14,38 @@
       <div class="card shadow-sm mb-3"><div class="card-body"><h5>Review & Judging Settings</h5><p><strong>Reviewers per submission:</strong> {{ app_settings.reviewers_per_submission }}</p><p><strong>Judging Criteria:</strong> {{ app_settings.judging_criteria | join(', ') }}</p></div></div>
     </div>
   </div>
-  <div class="card shadow-sm"><div class="card-body"><h5>Workflow Notes</h5><p>Use this page to coordinate setup and publish schedule data. For now, workflow updates and notifications are managed through the admin dashboard panels.</p></div></div>
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h5>Publish Digest</h5>
+      <form method="POST" action="{{ url_for('workflow_views.upsert_digest_action') }}">
+        <div class="row g-3">
+          <div class="col-md-2"><input class="form-control" type="number" name="year" value="2026"></div>
+          <div class="col-md-10"><textarea class="form-control" name="summary" rows="3" placeholder="Digest summary for the festival" required>{{ digests[0].summary if digests else '' }}</textarea></div>
+          <div class="col-md-12">
+            <label class="form-label">Include Presentations</label>
+            <select class="form-select" name="presentation_ids" multiple size="4">
+              {% for presentation in publishable_presentations %}
+              <option value="{{ presentation.id }}">{{ presentation.submission.title if presentation.submission else 'Untitled' }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-dark mt-3" type="submit">Update Digest</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5>Published Digest Entries</h5>
+      {% for digest in digests %}
+      <div class="border-bottom pb-2 mb-2">
+        <strong>{{ digest.year }}</strong>
+        <div class="text-muted small">{{ digest.presentation.submission.title if digest.presentation and digest.presentation.submission else 'Festival Summary' }}</div>
+      </div>
+      {% else %}
+      <p class="mb-0 text-muted">No digest entries published yet.</p>
+      {% endfor %}
+    </div>
+  </div>
 {% endblock %}
