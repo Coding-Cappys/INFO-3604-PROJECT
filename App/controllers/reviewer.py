@@ -1,7 +1,26 @@
 from App.database import db
-from App.models import Review, ReviewSubmission, SubmissionStatus
+from App.models import Review, ReviewDecision, ReviewSubmission, SubmissionStatus
 
 from .workflow_common import WorkflowError
+
+
+def normalize_review_decision(decision):
+    if isinstance(decision, ReviewDecision):
+        return decision
+
+    mapping = {
+        "Approve": ReviewDecision.ApproveOral,
+        "ApproveOral": ReviewDecision.ApproveOral,
+        "ApprovePoster": ReviewDecision.ApprovePoster,
+        "RecommendPoster": ReviewDecision.ApprovePoster,
+        "RequestChanges": ReviewDecision.RequestChanges,
+        "Reject": ReviewDecision.Reject,
+        "Rejected": ReviewDecision.Reject,
+    }
+    normalized = mapping.get(str(decision))
+    if normalized is None:
+        raise WorkflowError("Unsupported review decision.")
+    return normalized
 
 
 def assign_reviewer(submission, reviewer):
@@ -29,7 +48,7 @@ def submit_review(assignment, decision, comments):
 
     review = Review(
         review_submission=assignment,
-        decision=decision,
+        decision=normalize_review_decision(decision),
         comments=comments.strip() if comments else None,
     )
     assignment.status = "Completed"

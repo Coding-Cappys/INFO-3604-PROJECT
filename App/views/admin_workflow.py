@@ -35,8 +35,8 @@ def assign_reviewer_action(submission_id):
 @role_required(Role.Admin)
 def record_decision_action(submission_id):
     submission = Submission.query.get_or_404(submission_id)
-    status = SubmissionStatus(request.form["status"])
     try:
+        status = SubmissionStatus[request.form["status"]]
         record_editor_decision(submission, status)
         flash("Editorial decision recorded.")
     except WorkflowError as exc:

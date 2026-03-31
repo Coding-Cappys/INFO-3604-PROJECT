@@ -152,7 +152,7 @@ def _seed_workflow_data(users, tracks, sessions):
     )
     submit_submission(accepted)
     review_assignment = assign_reviewer(accepted, users["reviewer"])
-    submit_review(review_assignment, decision="Approve", comments="Strong educational contribution.")
+    submit_review(review_assignment, decision="ApproveOral", comments="Strong educational contribution.")
     record_editor_decision(accepted, SubmissionStatus.AcceptedOral)
     assign_presentation_to_session(accepted.presentation, sessions["oral"], duration_minutes=15)
     judge_assignment = assign_judge(accepted.presentation, users["judge"])
@@ -194,7 +194,7 @@ def _seed_workflow_data(users, tracks, sessions):
     )
     submit_submission(poster)
     review_assignment = assign_reviewer(poster, users["reviewer_two"])
-    submit_review(review_assignment, decision="RecommendPoster", comments="Good fit for poster discussion.")
+    submit_review(review_assignment, decision="ApprovePoster", comments="Good fit for poster discussion.")
     record_editor_decision(poster, SubmissionStatus.AcceptedPoster)
     assign_presentation_to_session(
         poster.presentation,

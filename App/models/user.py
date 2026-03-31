@@ -20,21 +20,26 @@ class User(db.Model):
     password = db.Column(db.String(256), nullable=False)
     name = db.Column(db.String(120), nullable=True)
     email = db.Column(db.String(120), nullable=True, unique=True)
-    role = db.Column(db.Enum(Role, values_callable=lambda obj: [e.value for e in obj]), nullable=False, default=Role.Attendee)
+    role = db.Column(
+        db.Enum(Role, values_callable=lambda obj: [e.value for e in obj]),
+        nullable=False,
+        default=Role.Attendee,
+    )
     affiliation = db.Column(db.String(256), nullable=True)
     discipline = db.Column(db.String(256), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     checked_in = db.Column(db.Boolean, default=False)
-    
-    # Relationships
-    submissions = db.relationship("Submission", back_populates="creator", lazy="dynamic")
-    submission_authors = db.relationship("SubmissionAuthor", back_populates="user", lazy="dynamic")
-    review_submissions = db.relationship("ReviewSubmission", back_populates="reviewer", lazy="dynamic")
-    judge_assignments = db.relationship("JudgeAssignment", back_populates="judge", lazy="dynamic")
-    rsvps = db.relationship("RSVP", back_populates="user", lazy="dynamic")
-    attendances = db.relationship("Attendance", back_populates="user", lazy="dynamic")
-    feedbacks = db.relationship("Feedback", back_populates="user", lazy="dynamic")
+
+    submissions = db.relationship("Submission", back_populates="creator")
+    submission_authors = db.relationship("SubmissionAuthor", back_populates="user")
+    review_submissions = db.relationship("ReviewSubmission", back_populates="reviewer")
+    judge_assignments = db.relationship("JudgeAssignment", back_populates="judge")
+    rsvps = db.relationship("RSVP", back_populates="user")
+    attendances = db.relationship("Attendance", back_populates="user")
+    feedbacks = db.relationship("Feedback", back_populates="user")
     qr_code = db.relationship("QRCode", back_populates="user", uselist=False)
+    ushered_sessions = db.relationship("Session", secondary="session_ushers", back_populates="ushers")
+    chaired_sessions = db.relationship("Session", foreign_keys="Session.chair_id", back_populates="chair")
 
     def __init__(self, username, password, **kwargs):
         self.username = username
@@ -43,15 +48,10 @@ class User(db.Model):
             setattr(self, key, value)
 
     def get_json(self):
-        return {
-            'id': self.id,
-            'username': self.username
-        }
+        return {"id": self.id, "username": self.username}
 
     def set_password(self, password):
-        """Create hashed password."""
         self.password = generate_password_hash(password)
-    
+
     def check_password(self, password):
-        """Check hashed password."""
         return check_password_hash(self.password, password)

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, render_template, request
 
 from App.controllers import initialize, latest_submission_version
-from App.models import Award, Digest, Presentation, PresentationStatus, Session
+from App.models import Award, Digest, Presentation, PresentationStatus, PresentationType, Session
 
 index_views = Blueprint("index_views", __name__, template_folder="../templates")
 
@@ -13,9 +13,9 @@ def index_page():
         Presentation.query.filter(
             Presentation.status.in_(
                 [
-                    PresentationStatus.Scheduled.value,
-                    PresentationStatus.Scored.value,
-                    PresentationStatus.AwardWinner.value,
+                    PresentationStatus.Scheduled,
+                    PresentationStatus.Scored,
+                    PresentationStatus.AwardWinner,
                 ]
             )
         )
@@ -52,14 +52,16 @@ def public_presentations():
     query = Presentation.query.filter(
         Presentation.status.in_(
             [
-                PresentationStatus.Scheduled.value,
-                PresentationStatus.Scored.value,
-                PresentationStatus.AwardWinner.value,
+                PresentationStatus.Scheduled,
+                PresentationStatus.Scored,
+                PresentationStatus.AwardWinner,
             ]
         )
     )
-    if filter_type in {"Oral", "Poster"}:
-        query = query.filter(Presentation.type == filter_type)
+    if filter_type == "Oral":
+        query = query.filter(Presentation.type == PresentationType.Oral)
+    elif filter_type == "Poster":
+        query = query.filter(Presentation.type == PresentationType.Poster)
     presentations = query.order_by(Presentation.id.desc()).all()
     return render_template(
         "public/public_presentations.html",
@@ -72,10 +74,10 @@ def public_presentations():
 @index_views.route("/presentations/<int:presentation_id>", methods=["GET"])
 def public_presentation_detail(presentation_id):
     presentation = Presentation.query.get_or_404(presentation_id)
-    if presentation.status.value not in {
-        PresentationStatus.Scheduled.value,
-        PresentationStatus.Scored.value,
-        PresentationStatus.AwardWinner.value,
+    if presentation.status not in {
+        PresentationStatus.Scheduled,
+        PresentationStatus.Scored,
+        PresentationStatus.AwardWinner,
     }:
         return render_template("401.html", error="Presentation is not publicly available."), 404
 
@@ -83,9 +85,9 @@ def public_presentation_detail(presentation_id):
         Presentation.id != presentation.id,
         Presentation.status.in_(
             [
-                PresentationStatus.Scheduled.value,
-                PresentationStatus.Scored.value,
-                PresentationStatus.AwardWinner.value,
+                PresentationStatus.Scheduled,
+                PresentationStatus.Scored,
+                PresentationStatus.AwardWinner,
             ]
         ),
     )

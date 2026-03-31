@@ -16,6 +16,7 @@ from App.models import (
     JudgeAssignment,
     Presentation,
     PresentationStatus,
+    PresentationType,
     ReviewSubmission,
     Role,
     RSVP,
@@ -53,7 +54,7 @@ def author_create_submission():
         latest_version = latest_submission_version(submission)
 
     tracks = Track.query.order_by(Track.name).all()
-    authors = User.query.filter(User.role == Role.Author.value).order_by(User.name, User.username).all()
+    authors = User.query.filter(User.role == Role.Author).order_by(User.name, User.username).all()
     return _render_role_page(
         "author/author_create_submission.html",
         "Author - Create Submission",
@@ -99,7 +100,7 @@ def submission_detail(submission_id):
     if not (is_author_owner or is_reviewer_assigned or is_admin):
         abort(403)
 
-    versions = submission.versions.order_by(SubmissionVersion.version_number.desc()).all()
+    versions = sorted(submission.versions, key=lambda version: version.version_number, reverse=True)
     supplementary_files = (
         SupplementaryMaterial.query.join(SupplementaryMaterial.submission_version)
         .filter(SubmissionVersion.submission_id == submission.id)
@@ -240,9 +241,10 @@ def reviewer_statistics():
     completed = [assignment for assignment in assignments if assignment.review is not None]
     pending = total - len(completed)
     decision_breakdown = {
-        "Approve": sum(1 for assignment in completed if assignment.review.decision.value == "Approve"),
+        "Approve Oral": sum(1 for assignment in completed if assignment.review.decision.value == "ApproveOral"),
+        "Approve Poster": sum(1 for assignment in completed if assignment.review.decision.value == "ApprovePoster"),
         "RequestChanges": sum(1 for assignment in completed if assignment.review.decision.value == "RequestChanges"),
-        "RecommendPoster": sum(1 for assignment in completed if assignment.review.decision.value == "RecommendPoster"),
+        "Reject": sum(1 for assignment in completed if assignment.review.decision.value == "Reject"),
     }
     theme_breakdown = []
     tracks = Track.query.order_by(Track.name).all()
@@ -269,6 +271,15 @@ def reviewer_statistics():
         'Reviewer - Statistics',
         'Reviewer',
         'Statistics',
+        stats={
+            "assigned_reviews": total,
+            "pending_reviews": pending,
+            "completed_reviews": len(completed),
+            "completion_rate": round((len(completed) / total) * 100, 1) if total else 0,
+            "avg_comment_length": avg_comment_length,
+        },
+        decision_breakdown=decision_breakdown,
+        theme_breakdown=theme_breakdown,
     )
 
 
@@ -409,7 +420,7 @@ def judge_assigned_presentations():
 def judge_oral_presentations():
     assignments = (
         JudgeAssignment.query.join(JudgeAssignment.presentation)
-        .filter(JudgeAssignment.judge_id == current_user.id, Presentation.type == "Oral")
+        .filter(JudgeAssignment.judge_id == current_user.id, Presentation.type == PresentationType.Oral)
         .all()
     )
     return _render_role_page(
@@ -426,7 +437,7 @@ def judge_oral_presentations():
 def judge_poster_sessions():
     assignments = (
         JudgeAssignment.query.join(JudgeAssignment.presentation)
-        .filter(JudgeAssignment.judge_id == current_user.id, Presentation.type == "Poster")
+        .filter(JudgeAssignment.judge_id == current_user.id, Presentation.type == PresentationType.Poster)
         .all()
     )
     return _render_role_page(
@@ -520,7 +531,7 @@ def attendee_my_schedule():
 @role_required(Role.Attendee)
 def attendee_event_digest():
     presentations = (
-        Presentation.query.filter(Presentation.status.in_([PresentationStatus.Scheduled.value, PresentationStatus.Scored.value]))
+        Presentation.query.filter(Presentation.status.in_([PresentationStatus.Scheduled, PresentationStatus.Scored]))
         .order_by(Presentation.id.desc())
         .all()
     )
@@ -566,9 +577,9 @@ def attendee_qa_feedback():
 @role_required(Role.Admin)
 def admin_submissions():
     submissions = Submission.query.order_by(Submission.submitted_at.desc()).limit(30).all()
-    reviewers = User.query.filter(User.role == Role.Reviewer.value).order_by(User.username).all()
+    reviewers = User.query.filter(User.role == Role.Reviewer).order_by(User.username).all()
     status_counts = {
-        status.value: Submission.query.filter_by(status=status.value).count()
+        status.value: Submission.query.filter_by(status=status).count()
         for status in SubmissionStatus
     }
     return _render_role_page(
@@ -587,9 +598,9 @@ def admin_submissions():
 def admin_review_management():
     assignments = ReviewSubmission.query.order_by(ReviewSubmission.assigned_at.desc()).limit(30).all()
     submitted_submissions = Submission.query.filter(
-        Submission.status.in_([SubmissionStatus.Submitted.value, SubmissionStatus.InReview.value])
+        Submission.status.in_([SubmissionStatus.Submitted, SubmissionStatus.InReview])
     ).all()
-    reviewers = User.query.filter(User.role == Role.Reviewer.value).order_by(User.username).all()
+    reviewers = User.query.filter(User.role == Role.Reviewer).order_by(User.username).all()
     total_assignments = ReviewSubmission.query.count()
     reviewed = ReviewSubmission.query.join(ReviewSubmission.review).count()
     pending = total_assignments - reviewed
@@ -612,10 +623,10 @@ def admin_review_management():
 def admin_agenda_builder():
     sessions = Session.query.order_by(Session.date, Session.time_slot).all()
     approved_presentations = Presentation.query.filter(
-        Presentation.status.in_([PresentationStatus.Approved.value, PresentationStatus.Scheduled.value])
+        Presentation.status.in_([PresentationStatus.Approved, PresentationStatus.Scheduled])
     ).all()
     tracks = Track.query.order_by(Track.name).all()
-    ushers = User.query.filter(User.role == Role.Usher.value).order_by(User.username).all()
+    ushers = User.query.filter(User.role == Role.Usher).order_by(User.username).all()
     return _render_role_page(
         "admin/admin_agenda_builder.html",
         "Administrator - Agenda Builder",
@@ -632,9 +643,9 @@ def admin_agenda_builder():
 @role_required(Role.Admin)
 def admin_judging_results():
     judge_assignments = JudgeAssignment.query.order_by(JudgeAssignment.assigned_at.desc()).limit(30).all()
-    judges = User.query.filter(User.role == Role.Judge.value).order_by(User.username).all()
+    judges = User.query.filter(User.role == Role.Judge).order_by(User.username).all()
     schedulable_presentations = Presentation.query.filter(
-        Presentation.status.in_([PresentationStatus.Scheduled.value, PresentationStatus.Scored.value])
+        Presentation.status.in_([PresentationStatus.Scheduled, PresentationStatus.Scored])
     ).all()
     total_scores = Score.query.count()
     avg_score = db.session.query(db.func.avg(average_score_expression())).scalar() or 0
@@ -681,12 +692,12 @@ def admin_reports_analytics():
         "feedback": Feedback.query.count(),
     }
     submission_status_breakdown = [
-        {"label": status.value, "count": Submission.query.filter_by(status=status.value).count()}
+        {"label": status.value, "count": Submission.query.filter_by(status=status).count()}
         for status in SubmissionStatus
     ]
     presentation_type_breakdown = [
-        {"label": "Oral", "count": Presentation.query.filter_by(type="Oral").count()},
-        {"label": "Poster", "count": Presentation.query.filter_by(type="Poster").count()},
+        {"label": "Oral", "count": Presentation.query.filter_by(type=PresentationType.Oral).count()},
+        {"label": "Poster", "count": Presentation.query.filter_by(type=PresentationType.Poster).count()},
     ]
     session_attendance = []
     for session in Session.query.order_by(Session.date, Session.time_slot).all():
@@ -798,7 +809,7 @@ def usher_check_in():
 @role_views.route("/role/usher/search-attendees", methods=["GET"])
 @role_required(Role.Usher)
 def usher_search_attendees():
-    attendees = User.query.filter(User.role == Role.Attendee.value).order_by(User.username).all()
+    attendees = User.query.filter(User.role == Role.Attendee).order_by(User.username).all()
     return _render_role_page(
         "usher/usher_search_attendees.html",
         "Usher - Search Attendees",
