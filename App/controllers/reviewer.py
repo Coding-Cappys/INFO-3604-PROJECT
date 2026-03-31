@@ -1,24 +1,24 @@
 from App.database import db
-from App.models import Review, ReviewAssignment, SubmissionStatus
+from App.models import Review, ReviewSubmission, SubmissionStatus
 
 from .workflow_common import WorkflowError
 
 
 def assign_reviewer(submission, reviewer):
-    existing = ReviewAssignment.query.filter_by(
+    existing = ReviewSubmission.query.filter_by(
         submission_id=submission.id,
         reviewer_id=reviewer.id,
     ).first()
     if existing:
         return existing
 
-    assignment = ReviewAssignment(
+    assignment = ReviewSubmission(
         submission=submission,
         reviewer=reviewer,
         status="Pending",
     )
     db.session.add(assignment)
-    submission.status = SubmissionStatus.UnderReview
+    submission.status = SubmissionStatus.InReview
     db.session.commit()
     return assignment
 
@@ -28,7 +28,7 @@ def submit_review(assignment, decision, comments):
         raise WorkflowError("A review has already been submitted for this assignment.")
 
     review = Review(
-        assignment=assignment,
+        review_submission=assignment,
         decision=decision,
         comments=comments.strip() if comments else None,
     )

@@ -1,9 +1,10 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, flash, redirect, render_template, url_for
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import  FileStorage
+from flask_jwt_extended import unset_jwt_cookies
 
 from App.database import init_db
 from App.config import load_config
@@ -35,7 +36,18 @@ def create_app(overrides={}):
     setup_admin(app)
     @jwt.invalid_token_loader
     @jwt.unauthorized_loader
+    @jwt.expired_token_loader
+    @jwt.needs_fresh_token_loader
     def custom_unauthorized_response(error):
-        return render_template('401.html', error=error), 401
+        response = redirect(url_for('index_views.index_page'))
+        # If the user token is expired/invalid, clear the stored JWT cookies
+        # so they don't keep getting redirected in a loop.
+        try:
+            unset_jwt_cookies(response)
+        except Exception:
+            # Best-effort only; do not block redirect if cookie unsetting fails.
+            pass
+        flash("Session expired. Please log in again.")
+        return response, 302
     app.app_context().push()
     return app

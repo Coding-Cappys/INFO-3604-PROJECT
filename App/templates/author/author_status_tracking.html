@@ -20,7 +20,7 @@
         </div>
         <div class="row">
           <div class="col-md-4"><strong>Created:</strong> {{ submission.submitted_at.strftime('%Y-%m-%d') if submission.submitted_at else 'N/A' }}</div>
-          <div class="col-md-4"><strong>Reviews Assigned:</strong> {{ submission.review_assignments.count() }}</div>
+          <div class="col-md-4"><strong>Reviews Assigned:</strong> {{ submission.review_submissions.count() }}</div>
           <div class="col-md-4"><strong>Presentation:</strong> {{ submission.presentation.type.value if submission.presentation else 'Pending decision' }}</div>
         </div>
       </div>

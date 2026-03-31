@@ -4,7 +4,7 @@ from flask import Response, current_app, jsonify, send_from_directory
 from flask_jwt_extended import current_user
 
 from App.controllers import role_required
-from App.models import ReviewAssignment, Role, Submission, SubmissionVersion, SupplementaryMaterial
+from App.models import ReviewSubmission, Role, Submission, SubmissionVersion, SupplementaryMaterial
 
 from .workflow_blueprint import workflow_views
 
@@ -20,7 +20,7 @@ def download_supplementary_file(file_name):
     is_author_owner = current_user.role.value == Role.Author.value and submission.creator_id == current_user.id
     is_reviewer_assigned = (
         current_user.role.value == Role.Reviewer.value
-        and ReviewAssignment.query.filter_by(submission_id=submission.id, reviewer_id=current_user.id).first() is not None
+        and ReviewSubmission.query.filter_by(submission_id=submission.id, reviewer_id=current_user.id).first() is not None
     )
     is_admin = current_user.role.value == Role.Admin.value
     if not (is_author_owner or is_reviewer_assigned or is_admin):

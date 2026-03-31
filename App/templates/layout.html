@@ -56,6 +56,7 @@
                                 <li><h6 class="dropdown-header">Select Role</h6></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-role="author"><i class="fas fa-pen-fancy"></i> Author</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-role="reviewer"><i class="fas fa-eye"></i> Reviewer</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-role="editor"><i class="fas fa-eye"></i> Editor</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-role="judge"><i class="fas fa-trophy"></i> Judge</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-role="attendee"><i class="fas fa-users"></i> Attendee</a></li>
                                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-role="admin"><i class="fas fa-cogs"></i> Administrator</a></li>
@@ -138,6 +139,13 @@
                   <a href="{{ url_for('role_views.reviewer_abstract_digest') }}" class="nav-link"><i class="fas fa-file-alt"></i> Abstract Digest</a>
                   <a href="{{ url_for('role_views.reviewer_guidelines') }}" class="nav-link"><i class="fas fa-book"></i> Guidelines</a>
                   <a href="{{ url_for('role_views.reviewer_statistics') }}" class="nav-link"><i class="fas fa-bar-chart"></i> Statistics</a>
+              </div>
+
+              <!-- Editor-Specific Navigation -->
+              <div class="nav-section" data-role="editor">
+                  <h6 class="nav-section-title">Editorial</h6>
+                  <a href="{{ url_for('role_views.editor_view_submissions') }}" class="nav-link"><i class="fas fa-tasks"></i> View Submissions</a>
+                  <a href="{{ url_for('role_views.editor_abstract_digest') }}" class="nav-link"><i class="fas fa-file-alt"></i> Abstract Digest</a>
               </div>
 
               <!-- Judge-Specific Navigation -->

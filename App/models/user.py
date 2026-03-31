@@ -29,7 +29,7 @@ class User(db.Model):
     # Relationships
     submissions = db.relationship("Submission", back_populates="creator", lazy="dynamic")
     submission_authors = db.relationship("SubmissionAuthor", back_populates="user", lazy="dynamic")
-    review_assignments = db.relationship("ReviewAssignment", back_populates="reviewer", lazy="dynamic")
+    review_submissions = db.relationship("ReviewSubmission", back_populates="reviewer", lazy="dynamic")
     judge_assignments = db.relationship("JudgeAssignment", back_populates="judge", lazy="dynamic")
     rsvps = db.relationship("RSVP", back_populates="user", lazy="dynamic")
     attendances = db.relationship("Attendance", back_populates="user", lazy="dynamic")

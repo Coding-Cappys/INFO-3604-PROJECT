@@ -1,3 +1,4 @@
+
 from flask import Blueprint, abort, render_template, request
 from flask_jwt_extended import current_user
 
@@ -15,7 +16,7 @@ from App.models import (
     JudgeAssignment,
     Presentation,
     PresentationStatus,
-    ReviewAssignment,
+    ReviewSubmission,
     Role,
     RSVP,
     Score,
@@ -91,7 +92,7 @@ def submission_detail(submission_id):
     is_author_owner = current_user.role.value == Role.Author.value and submission.creator_id == current_user.id
     is_reviewer_assigned = (
         current_user.role.value == Role.Reviewer.value
-        and ReviewAssignment.query.filter_by(submission_id=submission.id, reviewer_id=current_user.id).first() is not None
+        and ReviewSubmission.query.filter_by(submission_id=submission.id, reviewer_id=current_user.id).first() is not None
     )
     is_admin = current_user.role.value == Role.Admin.value
 
@@ -155,8 +156,8 @@ def author_reviewer_feedback():
 @role_required(Role.Reviewer)
 def reviewer_assigned_abstracts():
     assignments = (
-        ReviewAssignment.query.filter_by(reviewer_id=current_user.id)
-        .order_by(ReviewAssignment.assigned_at.desc())
+        ReviewSubmission.query.filter_by(reviewer_id=current_user.id)
+        .order_by(ReviewSubmission.assigned_at.desc())
         .all()
     )
     return _render_role_page(
@@ -173,9 +174,9 @@ def reviewer_assigned_abstracts():
 @role_required(Role.Reviewer)
 def reviewer_my_reviews():
     assignments = (
-        ReviewAssignment.query.filter_by(reviewer_id=current_user.id)
-        .filter(ReviewAssignment.review.isnot(None))
-        .order_by(ReviewAssignment.assigned_at.desc())
+        ReviewSubmission.query.filter_by(reviewer_id=current_user.id)
+        .filter(ReviewSubmission.review.isnot(None))
+        .order_by(ReviewSubmission.assigned_at.desc())
         .all()
     )
     return _render_role_page(
@@ -190,7 +191,8 @@ def reviewer_my_reviews():
 @role_views.route("/role/reviewer/abstract-digest", methods=["GET"])
 @role_required(Role.Reviewer)
 def reviewer_abstract_digest():
-    submissions = Submission.query.filter(Submission.status != SubmissionStatus.Draft).order_by(Submission.submitted_at.desc()).all()
+    # SubmissionStatus in the current model doesn't include a "Draft" state.
+    submissions = Submission.query.order_by(Submission.submitted_at.desc()).all()
     return _render_role_page(
         "reviewer/reviewer_abstract_digest.html",
         "Reviewer - Abstract Digest",
@@ -204,7 +206,7 @@ def reviewer_abstract_digest():
 @role_views.route("/role/reviewer/guidelines", methods=["GET"])
 @role_required(Role.Reviewer)
 def reviewer_guidelines():
-    assignments = ReviewAssignment.query.filter_by(reviewer_id=current_user.id).all()
+    assignments = ReviewSubmission.query.filter_by(reviewer_id=current_user.id).all()
     total = len(assignments)
     completed = sum(1 for assignment in assignments if assignment.review is not None)
     pending = total - completed
@@ -233,7 +235,7 @@ def reviewer_guidelines():
 @role_views.route("/role/reviewer/statistics", methods=["GET"])
 @role_required(Role.Reviewer)
 def reviewer_statistics():
-    assignments = ReviewAssignment.query.filter_by(reviewer_id=current_user.id).all()
+    assignments = ReviewSubmission.query.filter_by(reviewer_id=current_user.id).all()
     total = len(assignments)
     completed = [assignment for assignment in assignments if assignment.review is not None]
     pending = total - len(completed)
@@ -263,25 +265,130 @@ def reviewer_statistics():
         sum(len(assignment.review.comments or "") for assignment in completed) / len(completed)
     ) if completed else 0
     return _render_role_page(
-        "reviewer/reviewer_statistics.html",
-        "Reviewer - Statistics",
-        "Reviewer",
-        "Statistics",
-        assignments=assignments,
-        stats={
-            "assigned_reviews": total,
-            "completed_reviews": len(completed),
-            "pending_reviews": pending,
-            "completion_rate": round((len(completed) / total) * 100, 1) if total else 0,
-            "avg_comment_length": avg_comment_length,
-        },
-        decision_breakdown=decision_breakdown,
-        theme_breakdown=theme_breakdown,
+        'reviewer/reviewer_statistics.html',
+        'Reviewer - Statistics',
+        'Reviewer',
+        'Statistics',
     )
 
 
-@role_views.route("/role/judge/assigned-presentations", methods=["GET"])
-@role_required(Role.Judge)
+# Editor
+@role_views.route('/role/editor/view-submissions', methods=['GET'])
+def editor_view_submissions():
+    from flask import request
+
+    # Pagination
+    PER_PAGE = 20
+    page = request.args.get('page', 1, type=int)
+
+    # Track filter (optional query param)
+    track_id = request.args.get('track', None)
+
+    # Query submissions, optionally filtered by track
+    query = Submission.query.order_by(Submission.submitted_at.desc())
+    if track_id:
+        query = query.filter(Submission.track_id == track_id)
+
+    total = query.count()
+    total_pages = max(1, (total + PER_PAGE - 1) // PER_PAGE)
+    page = max(1, min(page, total_pages))
+    submissions_raw = query.offset((page - 1) * PER_PAGE).limit(PER_PAGE).all()
+
+    # Normalise submission objects into simple dicts the template expects
+    STATUS_MAP = {
+        'Draft':         'unassigned',
+        'Submitted':     'pending',
+        'UnderReview':   'pending',
+        'AcceptedOral':  'approved-oral',
+        'AcceptedPoster':'approved-poster',
+        'ChangesNeeded': 'revision',
+        'Rejected':      'rejected',
+    }
+
+    submissions = []
+    for s in submissions_raw:
+        # Resolve reviewer ID from first active assignment, if any
+        rid = None
+        if hasattr(s, 'review_submissions'):
+            try:
+                first = s.review_submissions.first()
+            except Exception:
+                first = None
+            if first is not None:
+                if hasattr(first, 'reviewer') and first.reviewer:
+                    rid = first.reviewer.id
+                elif hasattr(first, 'reviewer_id'):
+                    rid = first.reviewer_id
+
+        submissions.append({
+            'id':         s.id,
+            'rid':        rid,
+            'title':      s.title,
+            'researcher': s.author.username if hasattr(s, 'author') and s.author else '—',
+            'status':     STATUS_MAP.get(getattr(s, 'status', ''), 'unassigned'),
+            'track':      getattr(s, 'track_id', ''),
+        })
+
+    # Build track list for the filter dropdown
+    from App.models import Track
+    try:
+        tracks = Track.query.order_by(Track.name).all()
+    except Exception:
+        tracks = []
+
+    return _render_role_page(
+        'editor/editor_view_submissions.html',
+        'Editor - View Track Submissions',
+        'Editor',
+        'View Submissions',
+        submissions=submissions,
+        tracks=tracks,
+        page=page,
+        total_pages=total_pages,
+    )
+
+
+@role_views.route('/role/editor/my-reviews', methods=['GET'])
+def editor_my_reviews():
+    return _render_role_page(
+        'editor/editor_my_reviews.html',
+        'Editor - My Reviews',
+        'Editor',
+        'My Reviews',
+    )
+
+
+@role_views.route('/role/editor/abstract-digest', methods=['GET'])
+def editor_abstract_digest():
+    return _render_role_page(
+        'editor/editor_abstract_digest.html',
+        'Editor - Abstract Digest',
+        'Editor',
+        'Abstract Digest',
+    )
+
+
+@role_views.route('/role/editor/guidelines', methods=['GET'])
+def editor_guidelines():
+    return _render_role_page(
+        'editor/editor_guidelines.html',
+        'Editor - Guidelines',
+        'Editor',
+        'Guidelines',
+    )
+
+
+@role_views.route('/role/editor/statistics', methods=['GET'])
+def editor_statistics():
+    return _render_role_page(
+        'editor/editor_statistics.html',
+        'Editor - Statistics',
+        'Editor',
+        'Statistics',
+    )
+
+# Judge
+@role_views.route('/role/judge/assigned-presentations', methods=['GET'])
 def judge_assigned_presentations():
     assignments = (
         JudgeAssignment.query.filter_by(judge_id=current_user.id)
@@ -478,11 +585,13 @@ def admin_submissions():
 @role_views.route("/role/admin/review-management", methods=["GET"])
 @role_required(Role.Admin)
 def admin_review_management():
-    assignments = ReviewAssignment.query.order_by(ReviewAssignment.assigned_at.desc()).limit(30).all()
-    submitted_submissions = Submission.query.filter(Submission.status.in_([SubmissionStatus.Submitted.value, SubmissionStatus.UnderReview.value])).all()
+    assignments = ReviewSubmission.query.order_by(ReviewSubmission.assigned_at.desc()).limit(30).all()
+    submitted_submissions = Submission.query.filter(
+        Submission.status.in_([SubmissionStatus.Submitted.value, SubmissionStatus.InReview.value])
+    ).all()
     reviewers = User.query.filter(User.role == Role.Reviewer.value).order_by(User.username).all()
-    total_assignments = ReviewAssignment.query.count()
-    reviewed = ReviewAssignment.query.join(ReviewAssignment.review).count()
+    total_assignments = ReviewSubmission.query.count()
+    reviewed = ReviewSubmission.query.join(ReviewSubmission.review).count()
     pending = total_assignments - reviewed
     return _render_role_page(
         "admin/admin_review_management.html",
@@ -565,7 +674,7 @@ def admin_judging_results():
 def admin_reports_analytics():
     report = {
         "submissions": Submission.query.count(),
-        "reviews": ReviewAssignment.query.count(),
+        "reviews": ReviewSubmission.query.count(),
         "presentations": Presentation.query.count(),
         "sessions": Session.query.count(),
         "attendance": Attendance.query.count(),

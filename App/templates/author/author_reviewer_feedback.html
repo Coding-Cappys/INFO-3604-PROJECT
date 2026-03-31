@@ -12,7 +12,7 @@
     <div class="card shadow-sm mb-3">
       <div class="card-body">
         <h5>{{ submission.title }}</h5>
-        {% for assignment in submission.review_assignments %}
+        {% for assignment in submission.review_submissions %}
           {% if assignment.review %}
           <div class="border rounded p-3 mb-2">
             <div class="d-flex justify-content-between">

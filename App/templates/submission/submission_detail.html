@@ -48,7 +48,7 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <h5>Reviews</h5>
-            {% for assignment in submission.review_assignments %}
+            {% for assignment in submission.review_submissions %}
             <div class="border rounded p-3 mb-3">
               <div class="d-flex justify-content-between">
                 <strong>{{ assignment.reviewer.name or assignment.reviewer.username if assignment.reviewer else 'Unassigned reviewer' }}</strong>
