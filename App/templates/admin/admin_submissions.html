@@ -52,7 +52,7 @@
                   <tr>
                     <td>{{ submission.id }}</td>
                     <td>{{ submission.title }}</td>
-                    <td>{{ submission.status }}</td>
+                    <td>{{ submission.status.value if submission.status else 'N/A' }}</td>
                     <td>{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') if submission.submitted_at else 'N/A' }}</td>
                     <td>{{ submission.creator.username if submission.creator else 'Unknown' }}</td>
                     <td>{{ submission.primary_track.name if submission.primary_track else 'None' }}</td>

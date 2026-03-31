@@ -23,7 +23,10 @@ class WorkflowError(ValueError):
 
 
 def latest_submission_version(submission):
-    return submission.versions.order_by(SubmissionVersion.version_number.desc()).first()
+    versions = submission.versions or []
+    if not versions:
+        return None
+    return max(versions, key=lambda version: version.version_number)
 
 
 def store_supplementary_uploads(uploaded_files):

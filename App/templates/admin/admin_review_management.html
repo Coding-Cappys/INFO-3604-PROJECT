@@ -88,7 +88,7 @@
                 <td>{{ assignment.submission.title if assignment.submission else 'N/A' }}</td>
                 <td>{{ assignment.reviewer.username if assignment.reviewer else 'N/A' }}</td>
                 <td>{{ assignment.assigned_at.strftime('%Y-%m-%d') if assignment.assigned_at else 'N/A' }}</td>
-                <td>{{ assignment.status or (assignment.review.decision if assignment.review else 'Pending') }}</td>
+                <td>{{ assignment.status or (assignment.review.decision.value if assignment.review else 'Pending') }}</td>
               </tr>
               {% endfor %}
             {% else %}

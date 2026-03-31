@@ -15,6 +15,8 @@ from .workflow_common import WorkflowError, session_capacity_minutes
 
 
 def record_editor_decision(submission, status):
+    if status == SubmissionStatus.UnderReview:
+        status = SubmissionStatus.InReview
     if status not in {
         SubmissionStatus.ChangesRequested,
         SubmissionStatus.AcceptedOral,
