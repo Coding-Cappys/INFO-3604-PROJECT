@@ -531,7 +531,15 @@ def attendee_my_schedule():
 @role_required(Role.Attendee)
 def attendee_event_digest():
     presentations = (
-        Presentation.query.filter(Presentation.status.in_([PresentationStatus.Scheduled, PresentationStatus.Scored]))
+        Presentation.query.filter(
+            Presentation.status.in_(
+                [
+                    PresentationStatus.Approved,
+                    PresentationStatus.Scheduled,
+                    PresentationStatus.Scored,
+                ]
+            )
+        )
         .order_by(Presentation.id.desc())
         .all()
     )
@@ -541,6 +549,7 @@ def attendee_event_digest():
         "Attendee",
         "Event Digest",
         presentations=presentations,
+        latest_submission_version=latest_submission_version
     )
 
 

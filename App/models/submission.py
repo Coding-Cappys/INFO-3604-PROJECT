@@ -59,3 +59,11 @@ class Submission(db.Model):
         uselist=False,
         cascade="all, delete-orphan",
     )
+
+    @property
+    def description(self):
+        # The displayable description is the latest submission version abstract when available.
+        if self.versions:
+            latest_version = max(self.versions, key=lambda v: v.version_number)
+            return latest_version.abstract
+        return None

@@ -1,5 +1,7 @@
 from datetime import date
 
+from flask import sessions
+
 from App.database import db
 from App.models import Role, SubmissionStatus, Track
 
@@ -203,10 +205,81 @@ def _seed_workflow_data(users, tracks, sessions):
         duration_minutes=10,
     )
     assign_award_to_presentation(poster.presentation, "Best Poster Presentation", "Poster")
+    extra_event = create_submission(
+        users["author_two"],
+        "Smart Agriculture Systems for Caribbean Farms",
+        "Using IoT and data analytics to improve agricultural productivity in the Caribbean.",
+        keywords="agriculture, iot, data",
+        primary_track_id=tracks[2].id,
+        author_ids=[users["author_two"].id],
+        supplementary_files=["smart-agriculture.pdf"],
+    )
+
+    submit_submission(extra_event)
+
+    review_assignment = assign_reviewer(extra_event, users["reviewer_two"])
+    submit_review(
+        review_assignment,
+        decision="ApproveOral",
+        comments="Relevant and innovative.",
+    )
+
+    record_editor_decision(extra_event, SubmissionStatus.AcceptedOral)
+
+    assign_presentation_to_session(
+        extra_event.presentation,
+        sessions["oral"],
+        duration_minutes=12,
+    )
+
+    encore = create_submission(
+        users["author"],
+        "Sustainable Campus Recycling Initiatives",
+        "A model for implementing scalable recycling programs at campus facilities.",
+        keywords="sustainability, recycling",
+        primary_track_id=tracks[0].id,
+        author_ids=[users["author"].id],
+        supplementary_files=["recycling-initiative.pdf"],
+    )
+    submit_submission(encore)
+    review_assignment = assign_reviewer(encore, users["reviewer"])
+    submit_review(review_assignment, decision="ApprovePoster", comments="Strong sustainability case study.")
+    record_editor_decision(encore, SubmissionStatus.AcceptedPoster)
+    assign_presentation_to_session(
+        encore.presentation,
+        sessions["poster"],
+        poster_location="B-14",
+        duration_minutes=10,
+    )
+
+    keynote = create_submission(
+        users["author_two"],
+        "Future of Digital Education in the Caribbean",
+        "Exploring emerging tools and policies that shape digital education across the region.",
+        keywords="digital education, policy",
+        primary_track_id=tracks[2].id,
+        author_ids=[users["author_two"].id],
+        supplementary_files=["digital-education.pdf"],
+    )
+    submit_submission(keynote)
+    review_assignment = assign_reviewer(keynote, users["reviewer_two"])
+    submit_review(review_assignment, decision="ApproveOral", comments="Excellent strategic outlook.")
+    record_editor_decision(keynote, SubmissionStatus.AcceptedOral)
+    assign_presentation_to_session(
+        keynote.presentation,
+        sessions["oral"],
+        duration_minutes=15,
+    )
 
     toggle_rsvp(users["attendee"], sessions["oral"])
     upsert_digest(
         2026,
         "The 2026 festival highlights adaptive learning, community health, and AI-enabled research support across the UWI.",
-        presentation_ids=[accepted.presentation.id, poster.presentation.id],
+        presentation_ids=[
+            accepted.presentation.id,
+            poster.presentation.id,
+            extra_event.presentation.id,
+            encore.presentation.id,
+            keynote.presentation.id,
+        ],
     )
