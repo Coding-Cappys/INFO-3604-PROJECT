@@ -159,9 +159,14 @@ def test_author_admin_reviewer_judge_attendee_and_usher_flow(app, client):
     assert response.status_code == 200
     assert response.get_json()["checked_in"] is True
 
+    # toggle off
+    response = client.post(f"/workflow/usher/sessions/{session_id}/checkin/7")
+    assert response.status_code == 200
+    assert response.get_json()["checked_in"] is False
+
     with app.app_context():
         assert RSVP.query.filter_by(user_id=7, session_id=session_id).count() == 1
-        assert Attendance.query.filter_by(user_id=7, session_id=session_id).count() == 1
+        assert Attendance.query.filter_by(user_id=7, session_id=session_id).count() == 0
 
 
 def test_role_protection_blocks_non_admin_access(client):

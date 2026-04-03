@@ -12,6 +12,10 @@ def check_in_attendee_action(session_id, user_id):
     session = Session.query.get_or_404(session_id)
     attendee = User.query.get_or_404(user_id)
     attendance = check_in_attendee(attendee, session)
+
+    if attendance is False:
+        return jsonify({"checked_in": False})
+
     return jsonify(
         {
             "checked_in": True,
