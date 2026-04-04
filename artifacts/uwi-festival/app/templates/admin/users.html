@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Users - Admin{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-people me-2"></i>Users</h1>
+    <span class="badge bg-secondary fs-6">{{ users | length }}</span>
+  </div>
+</div>
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="d-flex gap-2">
+      <select name="role" class="form-select form-select-sm" style="width:auto;">
+        <option value="">All Roles</option>
+        {% for r in ['admin','author','reviewer','attendee','judge','usher'] %}
+        <option value="{{ r }}" {% if role_filter == r %}selected{% endif %}>{{ r | title }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-uwi">Filter</button>
+    </form>
+  </div>
+</div>
+<div class="table-card">
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Role</th><th>Affiliation</th><th>Joined</th></tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td class="fw-semibold">{{ user.full_name }}</td>
+        <td class="small text-muted">{{ user.email }}</td>
+        <td><span class="sidebar-role-badge">{{ user.role }}</span></td>
+        <td class="small text-muted">{{ user.affiliation or '–' }}</td>
+        <td class="small text-muted">{{ user.created_at.strftime('%b %d, %Y') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-center text-muted py-4">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

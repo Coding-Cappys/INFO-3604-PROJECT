@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Awards - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div class="container" style="padding-top:70px;">
+<div class="page-header">
+  <h1><i class="bi bi-trophy me-2" style="color:var(--uwi-gold);"></i>Research Awards</h1>
+  <p class="text-muted mb-0">Rankings based on judging scores from the festival evaluation committee</p>
+</div>
+
+{% if ranked %}
+<div class="row g-4">
+  {% for submission, score in ranked %}
+  <div class="col-12">
+    <div class="card {% if loop.index == 1 %}border-warning border-2{% elif loop.index == 2 %}border-secondary{% endif %}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="d-flex gap-3 align-items-start">
+            <div class="text-center flex-shrink-0">
+              {% if loop.index == 1 %}
+              <span style="font-size:2.5rem;">&#127947;</span>
+              {% elif loop.index == 2 %}
+              <span style="font-size:2.5rem;">&#129352;</span>
+              {% elif loop.index == 3 %}
+              <span style="font-size:2.5rem;">&#129353;</span>
+              {% else %}
+              <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-muted" style="width:48px;height:48px;">{{ loop.index }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <div class="d-flex gap-2 mb-1">
+                <span class="badge {% if submission.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %}">{{ submission.presentation_type | title }}</span>
+                {% if submission.track %}<span class="badge bg-light text-dark border small">{{ submission.track.name | truncate(25) }}</span>{% endif %}
+              </div>
+              <h5 class="fw-bold mb-1">
+                <a href="{{ url_for('public.presentation_detail', submission_id=submission.id) }}" class="text-decoration-none text-dark">
+                  {{ submission.title }}
+                </a>
+              </h5>
+              <p class="small text-muted mb-0">{{ submission.authors }}</p>
+              {% if submission.affiliation %}<p class="small text-muted mb-0"><i class="bi bi-building me-1"></i>{{ submission.affiliation }}</p>{% endif %}
+            </div>
+          </div>
+          <div class="text-center flex-shrink-0 ms-3">
+            <div class="display-6 fw-bold" style="color:var(--uwi-gold);">{{ score }}</div>
+            <div class="small text-muted">/ 5.0</div>
+            <div class="star-rating mt-1">
+              {% for i in range(5) %}
+                {% if i < score|int %}&#9733;{% else %}&#9734;{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <i class="bi bi-trophy display-4 text-muted"></i>
+  <h5 class="mt-3 text-muted">Award results will be published after judging</h5>
+</div>
+{% endif %}
+</div>
+{% endblock %}
+{% block content %}{{ self.public_content() }}{% endblock %}

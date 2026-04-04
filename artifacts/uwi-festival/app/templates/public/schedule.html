@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Festival Schedule - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div style="padding-top:70px;" class="container-fluid">
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-calendar3 me-2"></i>Festival Schedule</h1>
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('auth.signup') }}" class="btn btn-uwi btn-sm">Register to RSVP</a>
+    {% endif %}
+  </div>
+</div>
+{% set displayed_this = [] %}
+{% set dates = sessions | map(attribute='session_date') | unique | list | sort %}
+{% for date in dates %}
+  <div class="mb-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="px-3 py-2 rounded-3 fw-bold text-white" style="background:var(--uwi-green);">{{ date }}</div>
+      <hr class="flex-grow-1">
+    </div>
+    <div class="row g-3">
+      {% for session in sessions %}
+        {% if session.session_date == date %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge {% if session.submission.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %} text-uppercase">
+                  {{ session.submission.presentation_type }}
+                </span>
+                <small class="text-muted fw-semibold">{{ session.start_time }} – {{ session.end_time }}</small>
+              </div>
+              <h6 class="fw-bold mb-1">
+                <a href="{{ url_for('public.presentation_detail', submission_id=session.submission.id) }}" class="text-decoration-none text-dark">
+                  {{ session.submission.title | truncate(90) }}
+                </a>
+              </h6>
+              <p class="small text-muted mb-2">{{ session.submission.authors }}</p>
+              {% if session.venue %}
+              <p class="small mb-1"><i class="bi bi-geo-alt text-muted me-1"></i>{{ session.venue.name }}</p>
+              {% endif %}
+              {% if session.poster_board %}
+              <p class="small mb-1"><i class="bi bi-layout-text-window text-muted me-1"></i>Poster Board: {{ session.poster_board }}</p>
+              {% endif %}
+              {% if session.session_chair %}
+              <p class="small mb-2"><i class="bi bi-person text-muted me-1"></i>Chair: {{ session.session_chair }}</p>
+              {% endif %}
+              {% if session.submission.track %}
+              <span class="badge bg-light text-dark border">{{ session.submission.track.name | truncate(30) }}</span>
+              {% endif %}
+              {% if current_user.is_authenticated and current_user.role == 'attendee' %}
+              <form method="post" action="{{ url_for('attendee.rsvp', session_id=session.id) }}" class="mt-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm {% if session.id in rsvp_session_ids %}btn-warning{% else %}btn-uwi{% endif %} w-100">
+                  {% if session.id in rsvp_session_ids %}
+                    <i class="bi bi-bookmark-check-fill me-1"></i>Remove RSVP
+                  {% else %}
+                    <i class="bi bi-bookmark-plus me-1"></i>RSVP
+                  {% endif %}
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-x display-4 text-muted"></i>
+    <h5 class="mt-3 text-muted">No sessions scheduled yet</h5>
+    <p class="text-muted">Sessions will appear here once presentations have been scheduled.</p>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}
+{% block content %}{{ self.public_content() }}{% endblock %}

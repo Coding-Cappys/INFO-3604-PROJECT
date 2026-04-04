@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Session Feedback - Attendee{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="{{ url_for('attendee.schedule') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  <h1><i class="bi bi-star me-2"></i>Session Feedback</h1>
+  <p class="text-muted mb-0">{{ session.submission.title | truncate(80) }}</p>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% for field_name, field_label in [('content_quality','Content Quality'),('presentation_effectiveness','Presentation Effectiveness'),('relevance','Relevance to My Interests')] %}
+          <div class="mb-4">
+            <label class="form-label fw-semibold">{{ field_label }}</label>
+            <div class="d-flex gap-3 align-items-center">
+              {% for i in range(1,6) %}
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="{{ field_name }}" value="{{ i }}" id="{{ field_name }}_{{ i }}"
+                  {% if feedback and feedback|attr(field_name) == i %}checked{% elif not feedback and i == 3 %}checked{% endif %}>
+                <label class="form-check-label" for="{{ field_name }}_{{ i }}">{{ i }}</label>
+              </div>
+              {% endfor %}
+              <small class="text-muted">(1=Poor, 5=Excellent)</small>
+            </div>
+          </div>
+          {% endfor %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Comments (optional)</label>
+            <textarea name="comments" class="form-control" rows="4" placeholder="Share your thoughts on this session...">{{ feedback.comments if feedback else '' }}</textarea>
+          </div>
+          <button type="submit" class="btn btn-uwi px-4">Submit Feedback</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

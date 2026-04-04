@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uwi-festival-db
+    environment:
+      POSTGRES_DB: uwi_festival
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uwi_festival"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  uwi-festival:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uwi-festival-local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: "5000"
+      SESSION_SECRET: "local-dev-secret"
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/uwi_festival"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./docker-data:/app/data
+    restart: unless-stopped
+
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: uwi-api-local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: "3001"
+      LOG_LEVEL: "info"
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/uwi_festival"
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

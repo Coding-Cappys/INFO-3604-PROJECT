@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Login - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div class="container" style="max-width:440px; padding-top:5rem;">
+  <div class="text-center mb-4">
+    <h1 class="section-title" style="color: var(--uwi-dark); font-size:1.8rem;">
+      UWI Research Festival
+    </h1>
+    <p class="text-muted">Principal's Research Awards & Festival Portal</p>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <h5 class="fw-bold mb-4">Sign In</h5>
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Email Address</label>
+          <input type="email" name="email" class="form-control" required autofocus placeholder="you@uwi.edu">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Password</label>
+          <input type="password" name="password" class="form-control" required placeholder="••••••••">
+        </div>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+            <label class="form-check-label small" for="remember">Remember me</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-uwi w-100 py-2 fw-semibold">Sign In</button>
+      </form>
+      <hr class="my-3">
+      <div class="text-center">
+        <p class="mb-1 small">Don't have an account?
+          <a href="{{ url_for('auth.signup') }}" class="fw-semibold">Sign Up</a>
+        </p>
+        <p class="mb-0 small text-muted">Browse as <a href="{{ url_for('public.index') }}">Public Visitor</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 p-3 bg-light rounded small">
+    <p class="fw-semibold mb-1">Demo Credentials:</p>
+    <p class="mb-0">Admin: admin@uwi.edu / admin123</p>
+    <p class="mb-0">Author: author@uwi.edu / author123</p>
+    <p class="mb-0">Reviewer: reviewer@uwi.edu / reviewer123</p>
+    <p class="mb-0">Attendee: attendee@uwi.edu / attendee123</p>
+    <p class="mb-0">Judge: judge@uwi.edu / judge123</p>
+    <p class="mb-0">Usher: usher@uwi.edu / usher123</p>
+  </div>
+</div>
+{% endblock %}

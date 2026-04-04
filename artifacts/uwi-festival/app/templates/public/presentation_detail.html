@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ submission.title }} - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div class="container" style="padding-top:70px;">
+<div class="page-header">
+  <a href="{{ url_for('public.presentations') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back to Presentations
+  </a>
+  <div class="d-flex gap-2 mb-2">
+    <span class="badge {% if submission.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %}">{{ submission.presentation_type | title }}</span>
+    {% if submission.track %}<span class="badge bg-light text-dark border">{{ submission.track.name }}</span>{% endif %}
+  </div>
+  <h1>{{ submission.title }}</h1>
+  <p class="text-muted mb-0">{{ submission.authors }}</p>
+  {% if submission.affiliation %}<p class="text-muted small"><i class="bi bi-building me-1"></i>{{ submission.affiliation }}</p>{% endif %}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">Abstract</div>
+      <div class="card-body">
+        <p style="line-height:1.8;">{{ submission.abstract }}</p>
+        {% if submission.keywords %}
+        <div class="mt-3">
+          <strong class="small text-muted">Keywords:</strong>
+          {% for kw in submission.keywords.split(',') %}
+          <span class="badge bg-light text-dark border ms-1">{{ kw.strip() }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    {% if submission.scheduled_session %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-calendar-event me-2"></i>Session Details</div>
+      <div class="card-body">
+        <p><strong>Date:</strong> {{ submission.scheduled_session.session_date }}</p>
+        <p><strong>Time:</strong> {{ submission.scheduled_session.start_time }} – {{ submission.scheduled_session.end_time }}</p>
+        {% if submission.scheduled_session.venue %}
+        <p><strong>Venue:</strong> {{ submission.scheduled_session.venue.name }}</p>
+        <p><strong>Location:</strong> {{ submission.scheduled_session.venue.location }}</p>
+        {% endif %}
+        {% if submission.scheduled_session.session_chair %}
+        <p><strong>Chair:</strong> {{ submission.scheduled_session.session_chair }}</p>
+        {% endif %}
+        {% if submission.scheduled_session.poster_board %}
+        <p class="mb-0"><strong>Poster Board:</strong> {{ submission.scheduled_session.poster_board }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% if current_user.is_authenticated and current_user.role == 'attendee' %}
+    <form method="post" action="{{ url_for('attendee.rsvp', session_id=submission.scheduled_session.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-uwi w-100">
+        <i class="bi bi-bookmark-plus me-2"></i>RSVP for this Session
+      </button>
+    </form>
+    {% endif %}
+    {% endif %}
+    {% if not current_user.is_authenticated %}
+    <div class="card">
+      <div class="card-body text-center">
+        <i class="bi bi-person-plus display-6 text-muted mb-2 d-block"></i>
+        <p class="mb-2 small">Register as an attendee to RSVP to sessions</p>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-uwi btn-sm">Sign Up</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</div>
+{% endblock %}
+{% block content %}{{ self.public_content() }}{% endblock %}

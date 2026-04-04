@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Agenda Management - Admin{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-calendar-event me-2"></i>Agenda Management</h1>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">Schedule a Presentation</div>
+      <div class="card-body">
+        {% if accepted %}
+        <form method="post" action="{{ url_for('admin.schedule_submission') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Presentation</label>
+              <select name="submission_id" class="form-select" required>
+                <option value="">Select accepted presentation...</option>
+                {% for sub in accepted %}
+                <option value="{{ sub.id }}">{{ sub.title | truncate(60) }} ({{ sub.presentation_type }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Venue</label>
+              <select name="venue_id" class="form-select">
+                <option value="">No venue</option>
+                {% for venue in venues %}
+                <option value="{{ venue.id }}">{{ venue.name }} ({{ venue.location }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-4">
+              <label class="form-label fw-semibold">Date</label>
+              <input type="date" name="session_date" class="form-control" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label fw-semibold">Start Time</label>
+              <input type="time" name="start_time" class="form-control" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label fw-semibold">End Time</label>
+              <input type="time" name="end_time" class="form-control" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Session Chair</label>
+              <input type="text" name="session_chair" class="form-control" placeholder="Optional">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Poster Board # (if poster)</label>
+              <input type="text" name="poster_board" class="form-control" placeholder="e.g. A12">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-uwi mt-3 px-4">Schedule Presentation</button>
+        </form>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-check-circle display-4"></i>
+          <p class="mt-2">All accepted presentations have been scheduled.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">Presentations Awaiting Scheduling</div>
+      <div class="card-body p-0">
+        {% for sub in accepted %}
+        <div class="p-3 border-bottom">
+          <span class="badge {% if sub.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %} mb-1">{{ sub.presentation_type }}</span>
+          <p class="fw-semibold mb-0 small">{{ sub.title | truncate(70) }}</p>
+          <small class="text-muted">{{ sub.authors }}</small>
+        </div>
+        {% else %}
+        <div class="text-center p-4 text-muted small">All accepted presentations are scheduled.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if sessions %}
+<div class="mt-4">
+  <h5 class="fw-bold mb-3">Current Schedule</h5>
+  <div class="table-card">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr><th>Date</th><th>Time</th><th>Presentation</th><th>Venue</th><th>Type</th><th>Chair / Board</th></tr>
+      </thead>
+      <tbody>
+        {% for session in sessions %}
+        <tr>
+          <td class="small fw-semibold">{{ session.session_date }}</td>
+          <td class="small text-muted">{{ session.start_time }}–{{ session.end_time }}</td>
+          <td style="max-width:200px;">
+            <span class="text-truncate d-block" title="{{ session.submission.title }}">{{ session.submission.title | truncate(50) }}</span>
+            <small class="text-muted">{{ session.submission.authors | truncate(35) }}</small>
+          </td>
+          <td class="small">{{ session.venue.name if session.venue else '–' }}</td>
+          <td><span class="badge {% if session.submission.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %}">{{ session.submission.presentation_type }}</span></td>
+          <td class="small">{{ session.session_chair or (('Board: ' + session.poster_board) if session.poster_board else '–') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Session Check-In - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="{{ url_for('usher.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+  </a>
+  <h1>{{ session.submission.title }}</h1>
+  <p class="text-muted mb-0">
+    {{ session.session_date }} {{ session.start_time }}{% if session.end_time %} - {{ session.end_time }}{% endif %}
+    {% if session.venue %} | {{ session.venue.name }}{% endif %}
+  </p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">Manual Check-In</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('usher.checkin') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="session_id" value="{{ session.id }}">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Attendee ID or Email</label>
+            <input type="text" name="attendee_query" id="sessionAttendeeQueryInput" class="form-control" placeholder="Enter attendee ID or email address" required>
+            <div class="d-grid mt-2">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-toggle="modal"
+                data-bs-target="#qrScannerModal"
+                data-qr-target="sessionAttendeeQueryInput"
+              >
+                <i class="bi bi-qr-code-scan me-2"></i>Scan Attendee QR Code
+              </button>
+            </div>
+            <small class="text-muted d-block mt-2">Scan the attendee badge and submit check-in without typing.</small>
+          </div>
+          <button type="submit" class="btn btn-uwi w-100">Check In Attendee</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Attendance</span>
+        <span class="badge bg-success">{{ attendance | length }} checked in</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Attendee</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Checked In At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for attendee in attendees %}
+            {% set record = attendance | selectattr('attendee_id', 'equalto', attendee.id) | first %}
+            <tr>
+              <td>{{ attendee.full_name }}</td>
+              <td class="small text-muted">{{ attendee.email }}</td>
+              <td>
+                {% if attendee.id in checked_in_ids %}
+                <span class="badge bg-success">Checked In</span>
+                {% else %}
+                <span class="badge bg-secondary">Pending</span>
+                {% endif %}
+              </td>
+              <td class="small text-muted">
+                {% if record %}
+                {{ record.checked_in_at.strftime('%H:%M') }}
+                {% else %}
+                -
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">No attendees found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrScannerModalLabel">Scan Attendee QR Code</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <video id="qrScannerVideo" class="w-100 rounded bg-dark" autoplay playsinline muted></video>
+        <p id="qrScannerStatus" class="small text-muted mb-0 mt-3">Allow camera access, then point the camera at the attendee QR code.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+  (() => {
+    const modalEl = document.getElementById('qrScannerModal');
+    if (!modalEl) return;
+
+    const videoEl = document.getElementById('qrScannerVideo');
+    const statusEl = document.getElementById('qrScannerStatus');
+    const canvasEl = document.createElement('canvas');
+    const canvasCtx = canvasEl.getContext('2d', { willReadFrequently: true });
+    const detectorSupported = 'BarcodeDetector' in window;
+    const detector = detectorSupported ? new BarcodeDetector({ formats: ['qr_code'] }) : null;
+    let activeStream = null;
+    let scanning = false;
+    let targetInputId = null;
+
+    const stopScanner = () => {
+      scanning = false;
+      if (activeStream) {
+        activeStream.getTracks().forEach((track) => track.stop());
+        activeStream = null;
+      }
+      if (videoEl) {
+        videoEl.srcObject = null;
+      }
+    };
+
+    const extractLookupValue = (rawValue) => {
+      const text = (rawValue || '').trim();
+      const match = text.match(/^UWI-FESTIVAL-(\d+)-(.+)$/);
+      if (!match) return text;
+      return match[2] || match[1];
+    };
+
+    const applyScannedValue = (rawValue) => {
+      const target = document.getElementById(targetInputId);
+      const value = extractLookupValue(rawValue);
+      if (target && value) {
+        target.value = value;
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+        statusEl.textContent = 'QR code captured. Review the value and submit check-in.';
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+        return true;
+      }
+      return false;
+    };
+
+    const scanFrame = async () => {
+      if (!scanning || !videoEl) return;
+      try {
+        if (detector) {
+          const barcodes = await detector.detect(videoEl);
+          if (barcodes.length > 0 && applyScannedValue(barcodes[0].rawValue)) {
+            return;
+          }
+        } else if (window.jsQR && videoEl.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA && canvasCtx) {
+          canvasEl.width = videoEl.videoWidth;
+          canvasEl.height = videoEl.videoHeight;
+          canvasCtx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+          const imageData = canvasCtx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+          const code = window.jsQR(imageData.data, imageData.width, imageData.height);
+          if (code && applyScannedValue(code.data)) {
+            return;
+          }
+        }
+      } catch (error) {
+        statusEl.textContent = 'Unable to read that QR code yet. Try holding the camera steadier.';
+      }
+      if (scanning) {
+        requestAnimationFrame(scanFrame);
+      }
+    };
+
+    modalEl.addEventListener('show.bs.modal', async (event) => {
+      const trigger = event.relatedTarget;
+      targetInputId = trigger?.getAttribute('data-qr-target');
+
+      try {
+        activeStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
+        });
+        videoEl.srcObject = activeStream;
+        statusEl.textContent = detectorSupported
+          ? 'Camera ready. Center the attendee QR code in view.'
+          : 'Camera ready. Using compatibility scanning mode for this browser.';
+        scanning = true;
+        requestAnimationFrame(scanFrame);
+      } catch (error) {
+        statusEl.textContent = 'Camera access was blocked or unavailable. You can still enter the attendee ID or email manually.';
+      }
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      stopScanner();
+      statusEl.textContent = 'Allow camera access, then point the camera at the attendee QR code.';
+    });
+  })();
+</script>
+{% endblock %}

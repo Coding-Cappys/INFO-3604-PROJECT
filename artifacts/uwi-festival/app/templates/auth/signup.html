@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Sign Up - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div class="container" style="max-width:520px; padding-top:4rem;">
+  <div class="text-center mb-4">
+    <h1 class="section-title" style="color:var(--uwi-dark);font-size:1.8rem;">Create Account</h1>
+    <p class="text-muted">UWI Principal's Research Awards & Festival</p>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold">First Name</label>
+            <input type="text" name="first_name" class="form-control" required placeholder="Jane">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">Last Name</label>
+            <input type="text" name="last_name" class="form-control" required placeholder="Smith">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Email Address</label>
+            <input type="email" name="email" class="form-control" required placeholder="you@uwi.edu">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Password</label>
+            <input type="password" name="password" class="form-control" required minlength="6" placeholder="Min. 6 characters">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Affiliation / Institution</label>
+            <input type="text" name="affiliation" class="form-control" placeholder="UWI St. Augustine">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Research Discipline</label>
+            <input type="text" name="discipline" class="form-control" placeholder="e.g. Computer Science, Biology">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Account Type</label>
+            <select name="role" class="form-select">
+              <option value="attendee">Festival Attendee</option>
+              <option value="author">Researcher / Author</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-uwi w-100 py-2 fw-semibold mt-4">Create Account</button>
+      </form>
+      <div class="text-center mt-3">
+        <small class="text-muted">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
