@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{% if edit %}Edit Submission{% else %}New Submission{% endif %} - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="{{ url_for('author.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  <h1>{% if edit %}Edit Submission{% else %}New Submission{% endif %}</h1>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Research Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control" required value="{{ submission.title if submission else '' }}"
+              placeholder="Full title of your research presentation">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Authors <span class="text-danger">*</span></label>
+            <input type="text" name="authors" class="form-control" required value="{{ submission.authors if submission else current_user.full_name }}"
+              placeholder="Author 1, Author 2, ... (first author first)">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Affiliation(s)</label>
+            <input type="text" name="affiliation" class="form-control" value="{{ submission.affiliation if submission else current_user.affiliation or '' }}"
+              placeholder="University/Institution name(s)">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Abstract <span class="text-danger">*</span></label>
+            <textarea name="abstract" class="form-control" rows="8" required placeholder="Provide a concise abstract of your research (250-500 words recommended)...">{{ submission.abstract if submission else '' }}</textarea>
+            <div class="form-text">Provide a clear, concise summary of your research, including objectives, methods, results, and conclusions.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Keywords</label>
+            <input type="text" name="keywords" class="form-control" value="{{ submission.keywords if submission else '' }}"
+              placeholder="e.g. neural networks, machine learning, Caribbean, health">
+            <div class="form-text">Comma-separated keywords relevant to your research</div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Research Track</label>
+              <select name="track_id" class="form-select">
+                <option value="">Select a track...</option>
+                {% for track in tracks %}
+                <option value="{{ track.id }}" {% if submission and submission.track_id == track.id %}selected{% endif %}>{{ track.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Preferred Presentation Format</label>
+              <select name="presentation_type" class="form-select">
+                <option value="oral" {% if submission and submission.presentation_type == 'oral' %}selected{% endif %}>Oral Presentation</option>
+                <option value="poster" {% if submission and submission.presentation_type == 'poster' %}selected{% endif %}>Poster Presentation</option>
+              </select>
+            </div>
+          </div>
+          {% if edit and submission.status == 'changes_requested' %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Revision Notes</label>
+            <textarea name="revision_notes" class="form-control" rows="3" placeholder="Describe the revisions you made in response to reviewer feedback...">{{ submission.revision_notes or '' }}</textarea>
+          </div>
+          {% if submission.admin_notes %}
+          <div class="alert alert-warning">
+            <strong>Admin Note:</strong> {{ submission.admin_notes }}
+          </div>
+          {% endif %}
+          {% endif %}
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-uwi px-4">{% if edit %}Save Changes{% else %}Submit Abstract{% endif %}</button>
+            <a href="{{ url_for('author.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Write Review - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="{{ url_for('reviewer.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  <h1>{% if review %}Edit Review{% else %}Write Review{% endif %}</h1>
+  <p class="text-muted mb-0">{{ submission.title | truncate(80) }}</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">Submission Details</div>
+      <div class="card-body">
+        <h6 class="fw-bold">{{ submission.title }}</h6>
+        <p class="small text-muted mb-2">{{ submission.authors }}</p>
+        {% if submission.affiliation %}<p class="small text-muted mb-2"><i class="bi bi-building me-1"></i>{{ submission.affiliation }}</p>{% endif %}
+        {% if submission.track %}<span class="badge bg-light text-dark border mb-2">{{ submission.track.name }}</span>{% endif %}
+        <hr>
+        <p class="small mb-0" style="line-height:1.7;">{{ submission.abstract }}</p>
+        {% if submission.keywords %}
+        <div class="mt-2">
+          {% for kw in submission.keywords.split(',') %}
+          <span class="badge bg-light text-dark border me-1 small">{{ kw.strip() }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">Review Form</div>
+      <div class="card-body p-4">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% for field_name, field_label in [('research_quality','Research Quality & Innovation'),('methodology','Methodological Soundness'),('relevance','Relevance to Conference Theme'),('clarity','Clarity of Writing')] %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ field_label }}</label>
+            <div class="d-flex gap-3 align-items-center">
+              {% for i in range(1,6) %}
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="{{ field_name }}" value="{{ i }}" id="{{ field_name }}_{{ i }}"
+                  {% if review and review|attr(field_name) == i %}checked{% elif not review and i == 3 %}checked{% endif %}>
+                <label class="form-check-label" for="{{ field_name }}_{{ i }}">{{ i }}</label>
+              </div>
+              {% endfor %}
+              <small class="text-muted">(1=Poor, 5=Excellent)</small>
+            </div>
+          </div>
+          {% endfor %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Overall Score</label>
+            <div class="d-flex gap-3 align-items-center">
+              {% for i in range(1,6) %}
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="overall_score" value="{{ i }}" id="overall_{{ i }}"
+                  {% if review and review.overall_score == i %}checked{% elif not review and i == 3 %}checked{% endif %}>
+                <label class="form-check-label" for="overall_{{ i }}">{{ i }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Recommendation</label>
+            <select name="recommendation" class="form-select" required>
+              <option value="">Select Recommendation...</option>
+              <option value="accept" {% if review and review.recommendation == 'accept' %}selected{% endif %}>Accept</option>
+              <option value="accept_oral" {% if review and review.recommendation == 'accept_oral' %}selected{% endif %}>Accept for Oral Presentation</option>
+              <option value="accept_poster" {% if review and review.recommendation == 'accept_poster' %}selected{% endif %}>Accept for Poster Session</option>
+              <option value="minor_revisions" {% if review and review.recommendation == 'minor_revisions' %}selected{% endif %}>Request Minor Revisions</option>
+              <option value="major_revisions" {% if review and review.recommendation == 'major_revisions' %}selected{% endif %}>Request Major Revisions</option>
+              <option value="reject" {% if review and review.recommendation == 'reject' %}selected{% endif %}>Reject</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Detailed Comments for Author</label>
+            <textarea name="comments" class="form-control" rows="5" placeholder="Provide constructive feedback to help the author understand your decision...">{{ review.comments if review else '' }}</textarea>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-uwi px-4">Submit Review</button>
+            <a href="{{ url_for('reviewer.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Score Presentation - Judge{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="{{ url_for('judge.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  <h1>{% if score %}Edit Judging Score{% else %}Score Presentation{% endif %}</h1>
+  <p class="text-muted mb-0">{{ submission.title | truncate(80) }}</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">Abstract Summary</div>
+      <div class="card-body">
+        <h6 class="fw-bold">{{ submission.title }}</h6>
+        <p class="small text-muted mb-2">{{ submission.authors }}</p>
+        {% if submission.affiliation %}<p class="small text-muted mb-2"><i class="bi bi-building me-1"></i>{{ submission.affiliation }}</p>{% endif %}
+        <hr>
+        <p class="small mb-0" style="line-height:1.7;">{{ submission.abstract | truncate(400) }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">Judging Criteria</div>
+      <div class="card-body p-4">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% for field_name, field_label, description in [
+            ('research_quality', 'Research Quality & Significance', 'Originality and importance of the research'),
+            ('clarity', 'Clarity of Presentation', 'Effectiveness and clarity of the presentation'),
+            ('innovation', 'Innovation & Originality', 'Novelty and creative contributions'),
+            ('response_to_questions', 'Response to Questions', 'Quality of answers during Q&A'),
+            ('overall_impact', 'Overall Impact', 'General impression and contribution to the field')
+          ] %}
+          <div class="mb-4">
+            <label class="form-label fw-semibold">{{ field_label }}</label>
+            <p class="small text-muted mb-2">{{ description }}</p>
+            <div class="d-flex gap-3 align-items-center">
+              {% for i in range(1,6) %}
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="{{ field_name }}" value="{{ i }}" id="{{ field_name }}_{{ i }}"
+                  {% if score and score|attr(field_name) == i %}checked{% elif not score and i == 3 %}checked{% endif %}>
+                <label class="form-check-label" for="{{ field_name }}_{{ i }}">{{ i }}</label>
+              </div>
+              {% endfor %}
+              <small class="text-muted">(1=Poor, 5=Excellent)</small>
+            </div>
+          </div>
+          {% endfor %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Comments & Notes</label>
+            <textarea name="comments" class="form-control" rows="4" placeholder="Provide additional notes about this presentation...">{{ score.comments if score else '' }}</textarea>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-uwi px-4">Submit Score</button>
+            <a href="{{ url_for('judge.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

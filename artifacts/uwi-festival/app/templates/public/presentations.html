@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Presentations - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div class="container" style="padding-top:70px;">
+<div class="page-header">
+  <h1><i class="bi bi-file-earmark-text me-2"></i>Accepted Presentations</h1>
+</div>
+<div class="row g-3">
+  {% for sub in submissions %}
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="badge {% if sub.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %}">{{ sub.presentation_type | title }}</span>
+          {% if sub.track %}<span class="badge bg-light text-dark border small">{{ sub.track.name | truncate(25) }}</span>{% endif %}
+        </div>
+        <h6 class="fw-bold">
+          <a href="{{ url_for('public.presentation_detail', submission_id=sub.id) }}" class="text-decoration-none text-dark">{{ sub.title }}</a>
+        </h6>
+        <p class="small text-muted mb-1">{{ sub.authors }}</p>
+        {% if sub.affiliation %}<p class="small text-muted mb-2"><i class="bi bi-building me-1"></i>{{ sub.affiliation }}</p>{% endif %}
+        <p class="small text-muted mb-0">{{ sub.abstract | truncate(150) }}</p>
+      </div>
+      <div class="card-footer bg-transparent">
+        <a href="{{ url_for('public.presentation_detail', submission_id=sub.id) }}" class="btn btn-uwi btn-sm">Read More</a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12 text-center py-5">
+    <i class="bi bi-file-earmark-x display-4 text-muted"></i>
+    <h5 class="mt-3 text-muted">No accepted presentations yet</h5>
+  </div>
+  {% endfor %}
+</div>
+</div>
+{% endblock %}
+{% block content %}{{ self.public_content() }}{% endblock %}

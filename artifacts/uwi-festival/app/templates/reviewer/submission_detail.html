@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Review Submission - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="{{ url_for('reviewer.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  <h1>{{ submission.title }}</h1>
+  <p class="text-muted mb-0">{{ submission.authors }}</p>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">Abstract</div>
+      <div class="card-body">
+        <p style="line-height:1.8;">{{ submission.abstract }}</p>
+        {% if submission.keywords %}
+        <div class="mt-3">
+          <strong class="small text-muted">Keywords:</strong>
+          {% for kw in submission.keywords.split(',') %}
+          <span class="badge bg-light text-dark border ms-1">{{ kw.strip() }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <dl class="row g-1 small mb-0">
+          <dt class="col-5 text-muted">Track</dt>
+          <dd class="col-7">{{ submission.track.name if submission.track else '–' }}</dd>
+          <dt class="col-5 text-muted">Format</dt>
+          <dd class="col-7">{{ submission.presentation_type | title }}</dd>
+          <dt class="col-5 text-muted">Submitted</dt>
+          <dd class="col-7">{{ submission.submitted_at.strftime('%b %d, %Y') }}</dd>
+        </dl>
+      </div>
+    </div>
+    {% if review %}
+    <div class="card border-success">
+      <div class="card-header bg-success text-white">Your Review</div>
+      <div class="card-body small">
+        <p><strong>Recommendation:</strong> {{ review.recommendation_label }}</p>
+        <p><strong>Overall Score:</strong> {{ review.overall_score }}/5</p>
+        {% if review.comments %}<p class="mb-0"><strong>Comments:</strong> {{ review.comments | truncate(100) }}</p>{% endif %}
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('reviewer.write_review', submission_id=submission.id) }}" class="btn btn-sm btn-outline-secondary w-100">Edit Review</a>
+      </div>
+    </div>
+    {% else %}
+    <a href="{{ url_for('reviewer.write_review', submission_id=submission.id) }}" class="btn btn-uwi w-100">Write Review</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

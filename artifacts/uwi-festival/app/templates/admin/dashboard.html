@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+  <p class="text-muted mb-0">System-wide overview of the UWI Principal's Research Awards & Festival</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-primary">{{ stats.total_submissions }}</div>
+      <div class="stat-label">Total Submissions</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-warning">{{ stats.under_review }}</div>
+      <div class="stat-label">Under Review</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-success">{{ stats.accepted }}</div>
+      <div class="stat-label">Accepted</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-info">{{ stats.scheduled }}</div>
+      <div class="stat-label">Scheduled</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-danger">{{ stats.rejected }}</div>
+      <div class="stat-label">Rejected</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number">{{ stats.total_reviews }}</div>
+      <div class="stat-label">Total Reviews</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-secondary">{{ stats.pending_reviews }}</div>
+      <div class="stat-label">Draft Reviews</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card text-center">
+      <div class="stat-number text-success">{{ stats.total_scores }}</div>
+      <div class="stat-label">Judging Scores</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Recent Submissions</span>
+        <a href="{{ url_for('admin.submissions') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub in recent_submissions %}
+            <tr>
+              <td class="fw-semibold" style="max-width:250px;">
+                <span class="text-truncate d-block" title="{{ sub.title }}">{{ sub.title | truncate(50) }}</span>
+              </td>
+              <td class="small text-muted">{{ sub.author.full_name }}</td>
+              <td><span class="badge bg-{{ sub.status_color }} badge-status">{{ sub.status_label }}</span></td>
+              <td class="small text-muted">{{ sub.submitted_at.strftime('%b %d') }}</td>
+              <td>
+                <a href="{{ url_for('admin.submission_detail', submission_id=sub.id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">Quick Actions</div>
+      <div class="card-body d-grid gap-2">
+        <a href="{{ url_for('admin.submissions') }}" class="btn btn-uwi">
+          <i class="bi bi-file-earmark-text me-2"></i>Manage Submissions
+        </a>
+        <a href="{{ url_for('admin.agenda') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-calendar-event me-2"></i>Build Agenda
+        </a>
+        <a href="{{ url_for('admin.judging') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-trophy me-2"></i>Judging Panel
+        </a>
+        <a href="{{ url_for('admin.results') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-bar-chart me-2"></i>View Results
+        </a>
+        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-people me-2"></i>Manage Users
+        </a>
+        <a href="{{ url_for('public.digest') }}" class="btn btn-gold" target="_blank">
+          <i class="bi bi-journal-bookmark me-2"></i>Preview Digest
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

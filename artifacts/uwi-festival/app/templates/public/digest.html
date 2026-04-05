@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Conference Digest - UWI Research Festival{% endblock %}
+{% block public_content %}
+<div class="container" style="padding-top:70px;">
+<div class="page-header">
+  <h1><i class="bi bi-journal-bookmark me-2"></i>Conference Digest</h1>
+  <p class="text-muted mb-0">Summary of accepted presentations and research at the 2026 UWI Principal's Research Awards & Festival</p>
+</div>
+
+{% for track in tracks %}
+{% set track_submissions = submissions | selectattr('track_id', 'equalto', track.id) | list %}
+{% if track_submissions %}
+<div class="mb-5">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <h4 class="mb-0 fw-bold" style="color:var(--uwi-green);">{{ track.name }}</h4>
+    <span class="badge bg-success">{{ track_submissions | length }} presentation{% if track_submissions | length != 1 %}s{% endif %}</span>
+    <hr class="flex-grow-1">
+  </div>
+  {% if track.description %}<p class="text-muted small mb-3">{{ track.description }}</p>{% endif %}
+  <div class="row g-3">
+    {% for sub in track_submissions %}
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-9">
+              <div class="d-flex gap-2 mb-1">
+                <span class="badge {% if sub.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %} badge-status">{{ sub.presentation_type | title }}</span>
+              </div>
+              <h6 class="fw-bold mb-1">
+                <a href="{{ url_for('public.presentation_detail', submission_id=sub.id) }}" class="text-decoration-none text-dark">{{ sub.title }}</a>
+              </h6>
+              <p class="small text-muted mb-1">{{ sub.authors }}</p>
+              {% if sub.affiliation %}<p class="small text-muted mb-2"><i class="bi bi-building me-1"></i>{{ sub.affiliation }}</p>{% endif %}
+              <p class="small mb-0">{{ sub.abstract | truncate(200) }}</p>
+              {% if sub.keywords %}
+              <div class="mt-2">
+                {% for kw in sub.keywords.split(',') %}
+                <span class="badge bg-light text-dark border me-1 small">{{ kw.strip() }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+              {% if sub.scheduled_session %}
+              <div class="text-muted small">
+                <i class="bi bi-calendar3 me-1"></i>{{ sub.scheduled_session.session_date }}<br>
+                <i class="bi bi-clock me-1"></i>{{ sub.scheduled_session.start_time }}<br>
+                {% if sub.scheduled_session.venue %}
+                <i class="bi bi-geo-alt me-1"></i>{{ sub.scheduled_session.venue.name }}
+                {% endif %}
+                {% if sub.scheduled_session.poster_board %}
+                <br><i class="bi bi-layout-text-window me-1"></i>Board {{ sub.scheduled_session.poster_board }}
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% if not submissions %}
+<div class="text-center py-5">
+  <i class="bi bi-journal-x display-4 text-muted"></i>
+  <h5 class="mt-3 text-muted">Conference digest not yet available</h5>
+  <p class="text-muted">The digest will be published once presentations are accepted.</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}
+{% block content %}{{ self.public_content() }}{% endblock %}

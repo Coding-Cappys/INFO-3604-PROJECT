@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}My Reviews - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-check2-square me-2"></i>My Reviews</h1>
+</div>
+<div class="row g-3">
+  {% for review in reviews %}
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row align-items-start">
+          <div class="col-md-7">
+            <h6 class="fw-bold mb-1">{{ review.submission.title | truncate(80) }}</h6>
+            <p class="small text-muted mb-2">{{ review.submission.authors }}</p>
+            {% if review.comments %}<p class="small text-muted mb-0">"{{ review.comments | truncate(120) }}"</p>{% endif %}
+          </div>
+          <div class="col-md-3 mt-3 mt-md-0">
+            <div class="row g-1 small">
+              <div class="col-6 text-muted">Research:</div><div class="col-6">{{ review.research_quality }}/5</div>
+              <div class="col-6 text-muted">Method:</div><div class="col-6">{{ review.methodology }}/5</div>
+              <div class="col-6 text-muted">Overall:</div><div class="col-6"><strong>{{ review.overall_score }}/5</strong></div>
+            </div>
+          </div>
+          <div class="col-md-2 mt-3 mt-md-0 text-md-end">
+            <span class="badge {% if review.recommendation in ('accept','accept_oral','accept_poster') %}bg-success{% elif review.recommendation == 'reject' %}bg-danger{% else %}bg-warning text-dark{% endif %} badge-status mb-2 d-block">
+              {{ review.recommendation_label }}
+            </span>
+            <a href="{{ url_for('reviewer.write_review', submission_id=review.submission_id) }}" class="btn btn-sm btn-outline-secondary w-100">Edit</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12 text-center py-5">
+    <i class="bi bi-chat-square-x display-4 text-muted"></i>
+    <h5 class="mt-3 text-muted">No reviews submitted yet</h5>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

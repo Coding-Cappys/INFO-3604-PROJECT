@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}My Profile - UWI Research Festival{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-person-gear me-2"></i>My Profile</h1>
+</div>
+<div class="row g-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">First Name</label>
+              <input type="text" name="first_name" class="form-control" value="{{ current_user.first_name }}" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Last Name</label>
+              <input type="text" name="last_name" class="form-control" value="{{ current_user.last_name }}" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Email Address</label>
+              <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Affiliation</label>
+              <input type="text" name="affiliation" class="form-control" value="{{ current_user.affiliation or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Research Discipline</label>
+              <input type="text" name="discipline" class="form-control" value="{{ current_user.discipline or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Bio</label>
+              <textarea name="bio" class="form-control" rows="4" placeholder="A brief professional bio...">{{ current_user.bio or '' }}</textarea>
+            </div>
+            <div class="col-12"><hr><h6 class="fw-bold text-muted">Change Password (optional)</h6></div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">New Password</label>
+              <input type="password" name="new_password" class="form-control" minlength="6" placeholder="Leave blank to keep current">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-uwi mt-4 px-4">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body p-4 text-center">
+        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:80px;height:80px;font-size:2rem;background:var(--uwi-green) !important;">
+          {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+        </div>
+        <h5 class="fw-bold">{{ current_user.full_name }}</h5>
+        <span class="sidebar-role-badge">{{ current_user.role }}</span>
+        <hr>
+        <div class="text-start small">
+          <p><i class="bi bi-envelope me-2 text-muted"></i>{{ current_user.email }}</p>
+          <p><i class="bi bi-building me-2 text-muted"></i>{{ current_user.affiliation or 'Not set' }}</p>
+          <p class="mb-0"><i class="bi bi-book me-2 text-muted"></i>{{ current_user.discipline or 'Not set' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

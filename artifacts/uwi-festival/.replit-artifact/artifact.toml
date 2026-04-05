@@ -1,0 +1,25 @@
+kind = "web"
+previewPath = "/"
+title = "UWI Research Awards & Festival"
+version = "1.0.0"
+id = "artifacts/uwi-festival"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24655
+
+[services.development]
+run = "python wsgi.py"
+
+[services.production]
+run = "gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2"
+
+[services.env]
+PORT = "24655"
+BASE_PATH = "/"
