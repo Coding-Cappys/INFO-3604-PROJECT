@@ -47,20 +47,147 @@
               <textarea class="form-control" id="abstract" name="abstract" rows="8" required>{{ latest_version.abstract if latest_version else '' }}</textarea>
             </div>
             <div class="col-md-6">
-              <label for="author_ids" class="form-label">Authors</label>
-              <select class="form-select" id="author_ids" name="author_ids" multiple size="4">
-                {% set selected_author_ids = submission.authors|map(attribute='user_id')|list if submission else [] %}
-                {% for author in authors %}
-                <option value="{{ author.id }}" {% if author.id in selected_author_ids or (not submission and loop.first) %}selected{% endif %}>{{ author.name or author.username }}</option>
-                {% endfor %}
-              </select>
-              <div class="form-text">Hold Ctrl/Cmd to select multiple authors.</div>
+              <label class="form-label">Authors</label>
+
+              <!-- Single hidden field submits all author names as a comma-separated string -->
+              <input type="hidden" id="author_ids" name="author_ids" value="">
+
+              <!-- Tag-style input UI -->
+              <div id="author-tag-wrapper" style="
+                border:1px solid #ced4da;
+                border-radius:0.375rem;
+                padding:0.375rem 0.5rem;
+                min-height:80px;
+                background:#fff;
+                cursor:text;
+                position:relative;
+              ">
+                <div id="author-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"></div>
+                <input type="text" id="author-search" autocomplete="off" placeholder="Type a name, then press Enter…" style="
+                  border:none;outline:none;width:100%;
+                  font-size:0.875rem;padding:2px 4px;
+                ">
+                <ul id="author-suggestions" style="
+                  display:none;
+                  position:absolute;left:0;right:0;top:100%;
+                  background:#fff;
+                  border:1px solid #ced4da;border-top:none;
+                  border-radius:0 0 0.375rem 0.375rem;
+                  list-style:none;margin:0;padding:0;
+                  z-index:999;max-height:180px;overflow-y:auto;
+                  box-shadow:0 4px 8px rgba(0,0,0,0.08);
+                "></ul>
+              </div>
+              <div class="form-text">Select from suggestions or press <kbd>Enter</kbd> to add a custom name.</div>
+
+              <script>
+              (function () {
+                // Build the known-authors pool from Jinja (names only, for suggestions)
+                const knownAuthors = [
+                  {% for author in authors %}
+                  { id: "{{ author.id }}", name: "{{ author.name or author.username }}" },
+                  {% endfor %}
+                ];
+
+                const hiddenInput  = document.getElementById('author_ids');
+                const tagsEl       = document.getElementById('author-tags');
+                const searchInput  = document.getElementById('author-search');
+                const suggestionBox = document.getElementById('author-suggestions');
+                const wrapper      = document.getElementById('author-tag-wrapper');
+
+                // Set of normalised names already added (prevents duplicates)
+                const added = new Set();
+
+                function syncHidden() {
+                  hiddenInput.value = Array.from(added).join(', ');
+                }
+
+                function addTag(name) {
+                  const norm = name.trim();
+                  if (!norm || added.has(norm.toLowerCase())) return;
+                  added.add(norm.toLowerCase());
+
+                  const tag = document.createElement('span');
+                  tag.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:#212529;color:#fff;border-radius:0.25rem;padding:2px 8px;font-size:0.8rem;';
+                  tag.innerHTML = `${norm} <button type="button" aria-label="Remove" style="background:none;border:none;color:#fff;cursor:pointer;padding:0;font-size:1rem;line-height:1;">&times;</button>`;
+                  tag.querySelector('button').addEventListener('click', () => {
+                    added.delete(norm.toLowerCase());
+                    tag.remove();
+                    syncHidden();
+                  });
+                  tagsEl.appendChild(tag);
+                  syncHidden();
+                }
+
+                // Pre-populate from existing submission authors
+                {% if submission %}
+                  {% for a in submission.authors %}
+                  addTag("{{ a.user.name or a.user.username }}");
+                  {% endfor %}
+                {% else %}
+                  {% if authors %}
+                  addTag("{{ authors[0].name or authors[0].username }}");
+                  {% endif %}
+                {% endif %}
+
+                function renderSuggestions(query) {
+                  const q = query.trim().toLowerCase();
+                  suggestionBox.innerHTML = '';
+                  if (!q) { suggestionBox.style.display = 'none'; return; }
+
+                  const matches = knownAuthors.filter(a =>
+                    a.name.toLowerCase().includes(q) && !added.has(a.name.toLowerCase())
+                  );
+
+                  // "Add as custom" option always shown when there's input
+                  const addCustomLi = document.createElement('li');
+                  addCustomLi.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:0.875rem;color:#666;border-bottom:1px solid #f0f0f0;';
+                  addCustomLi.innerHTML = `Add "<strong>${query.trim()}</strong>"`;
+                  addCustomLi.addEventListener('mouseenter', () => addCustomLi.style.background = '#f8f9fa');
+                  addCustomLi.addEventListener('mouseleave', () => addCustomLi.style.background = '');
+                  addCustomLi.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    addTag(query.trim());
+                    searchInput.value = '';
+                    suggestionBox.style.display = 'none';
+                  });
+                  suggestionBox.appendChild(addCustomLi);
+
+                  matches.forEach(a => {
+                    const li = document.createElement('li');
+                    li.textContent = a.name;
+                    li.style.cssText = 'padding:8px 12px;cursor:pointer;font-size:0.875rem;';
+                    li.addEventListener('mouseenter', () => li.style.background = '#f8f9fa');
+                    li.addEventListener('mouseleave', () => li.style.background = '');
+                    li.addEventListener('mousedown', e => {
+                      e.preventDefault();
+                      addTag(a.name);
+                      searchInput.value = '';
+                      suggestionBox.style.display = 'none';
+                    });
+                    suggestionBox.appendChild(li);
+                  });
+
+                  suggestionBox.style.display = 'block';
+                }
+
+                searchInput.addEventListener('input', () => renderSuggestions(searchInput.value));
+                searchInput.addEventListener('focus', () => renderSuggestions(searchInput.value));
+                searchInput.addEventListener('blur',  () => setTimeout(() => { suggestionBox.style.display = 'none'; }, 150));
+                searchInput.addEventListener('keydown', e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const val = searchInput.value.trim();
+                    if (val) { addTag(val); searchInput.value = ''; suggestionBox.style.display = 'none'; }
+                  }
+                });
+                wrapper.addEventListener('click', () => searchInput.focus());
+              })();
+              </script>
             </div>
             <div class="col-md-6">
               <label for="supplementary_files" class="form-label">Supplementary Files</label>
-              <input type="text" class="form-control" id="supplementary_files" name="supplementary_files" value="{% if latest_version %}{{ latest_version.supplementary_materials|map(attribute='file_name')|join(', ') }}{% endif %}" placeholder="paper.pdf, appendix.docx">
-              <label for="supplementary_uploads" class="form-label mt-3">Upload Files</label>
-              <input type="file" class="form-control" id="supplementary_uploads" name="supplementary_uploads" multiple>
+              <input type="file" class="form-control" id="supplementary_files" name="supplementary_files" value="{% if latest_version %}{{ latest_version.supplementary_materials|map(attribute='file_name')|join(', ') }}{% endif %}" placeholder="paper.pdf, appendix.docx">
               <label for="revision_notes" class="form-label mt-3">Revision Notes</label>
               <textarea class="form-control" id="revision_notes" name="revision_notes" rows="4">{{ latest_version.revision_notes if latest_version else '' }}</textarea>
             </div>

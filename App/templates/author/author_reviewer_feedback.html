@@ -5,31 +5,89 @@
 {% block content %}
 <div class="row">
   <div class="col-lg-12">
-    <h1>Reviewer Feedback</h1>
-    <p class="text-muted">Consolidated feedback across your submissions.</p>
-
-    {% for submission in submissions %}
-    <div class="card shadow-sm mb-3">
-      <div class="card-body">
-        <h5>{{ submission.title }}</h5>
-        {% for assignment in submission.review_assignments %}
-          {% if assignment.review %}
-          <div class="border rounded p-3 mb-2">
-            <div class="d-flex justify-content-between">
-              <strong>{{ assignment.reviewer.name or assignment.reviewer.username }}</strong>
-              <span class="badge bg-primary">{{ assignment.review.decision.value }}</span>
-            </div>
-            <p class="mb-0 mt-2">{{ assignment.review.comments or 'No written comments.' }}</p>
-          </div>
-          {% endif %}
-        {% else %}
-        <p class="text-muted mb-0">No feedback yet.</p>
-        {% endfor %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1>Reviewer Feedback</h1>
+        <p class="text-muted mb-0">Consolidated feedback across your submissions.</p>
       </div>
     </div>
-    {% else %}
-    <div class="alert alert-secondary">No submissions found.</div>
-    {% endfor %}
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Version</th>
+                <th>Track</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for submission in submissions %}
+              {% set latest = latest_submission_version(submission) %}
+              <tr>
+                <td>{{ submission.title }}</td>
+                <td>{{ latest.version_number if latest else 0 }}</td>
+                <td>{{ submission.primary_track.name if submission.primary_track else 'Unassigned' }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dark"
+                    data-bs-toggle="modal"
+                    data-bs-target="#feedbackModal{{ submission.id }}">
+                    View Review
+                  </button>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">No submissions yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- Feedback Modals -->
+{% for submission in submissions %}
+<div class="modal fade" id="feedbackModal{{ submission.id }}" tabindex="-1" aria-labelledby="feedbackModalLabel{{ submission.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="feedbackModalLabel{{ submission.id }}">
+          Reviewer Feedback — {{ submission.title }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% set has_feedback = [] %}
+        {% for assignment in submission.review_assignments %}
+          {% if assignment.review %}
+            {% set _ = has_feedback.append(1) %}
+            <div class="border rounded p-3 mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <strong>{{ assignment.reviewer.name or assignment.reviewer.username }}</strong>
+                <span class="badge bg-primary">{{ assignment.review.decision.value }}</span>
+              </div>
+              <p class="mb-0 mt-2">{{ assignment.review.comments or 'No written comments.' }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+        {% if not has_feedback %}
+          <p class="text-muted mb-0">No feedback yet.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
 {% endblock %}

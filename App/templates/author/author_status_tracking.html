@@ -9,6 +9,7 @@
     <p class="text-muted">Track the workflow stage of each submission.</p>
 
     {% for submission in submissions %}
+    {% set latest = latest_submission_version(submission) %}
     <div class="card shadow-sm mb-3">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
@@ -16,12 +17,13 @@
             <h5 class="mb-1">{{ submission.title }}</h5>
             <p class="text-muted mb-2">{{ submission.primary_track.name if submission.primary_track else 'No primary track' }}</p>
           </div>
-          <span class="badge bg-dark">{{ submission.status.value }}</span>
+          
         </div>
         <div class="row">
           <div class="col-md-4"><strong>Created:</strong> {{ submission.submitted_at.strftime('%Y-%m-%d') if submission.submitted_at else 'N/A' }}</div>
-          <div class="col-md-4"><strong>Reviews Assigned:</strong> {{ submission.review_assignments.count() }}</div>
+          <div class="col-md-4"><strong>Latest Version:</strong> {{ latest.version_number if latest else 0 }}</div>
           <div class="col-md-4"><strong>Presentation:</strong> {{ submission.presentation.type.value if submission.presentation else 'Pending decision' }}</div>
+          <span class="badge bg-dark">{{ submission.status.value }}</span>
         </div>
       </div>
     </div>

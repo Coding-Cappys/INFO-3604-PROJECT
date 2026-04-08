@@ -29,13 +29,23 @@
               </button>
               <div class="collapse navbar-collapse" id="navbarNav">
                   <ul class="navbar-nav ms-auto">
-                      <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_schedule') }}">Schedule</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_presentations') }}">Presentations</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_digest') }}">Digest</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_awards') }}">Awards</a></li>
+                      {% if is_authenticated and current_user.role.value.lower() == 'author' %}
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('role_views.author_create_submission') }}">Create </a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('role_views.author_my_submissions') }}">Submissions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('role_views.author_status_tracking') }}">Tracking</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('role_views.author_reviewer_feedback') }}">Feedback</a></li>
+                      {% else %}
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_schedule') }}">Schedule</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_presentations') }}">Presentations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_digest') }}">Digest</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('index_views.public_awards') }}">Awards</a></li>
+                        {% if is_authenticated %}
+                          <li class="nav-item"><a class="nav-link" href="/identify">My Profile</a></li>
+                        {% endif %}
+                      {% endif %}
                       {% if is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="/identify">My Profile</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle"></i> User

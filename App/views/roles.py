@@ -130,6 +130,7 @@ def author_status_tracking():
         "Author - Status Tracking",
         "Author",
         "Status Tracking",
+        latest_submission_version= latest_submission_version,
         submissions=submissions,
     )
 
@@ -147,6 +148,7 @@ def author_reviewer_feedback():
         "Author - Reviewer Feedback",
         "Author",
         "Reviewer Feedback",
+        latest_submission_version= latest_submission_version,
         submissions=submissions,
     )
 
