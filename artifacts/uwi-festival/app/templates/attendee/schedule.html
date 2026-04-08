@@ -41,7 +41,7 @@
           <form method="post" action="{{ url_for('attendee.rsvp', session_id=session.id) }}" class="flex-grow-1">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm {% if session.id in rsvp_session_ids %}btn-warning{% else %}btn-uwi{% endif %} w-100">
-              {% if session.id in rsvp_session_ids %}Remove RSVP{% else %}RSVP{% endif %}
+              {% if session.id in rsvp_session_ids %}Remove Attendance{% else %}Attend{% endif %}
             </button>
           </form>
         </div>
