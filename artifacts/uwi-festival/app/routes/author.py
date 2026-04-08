@@ -112,3 +112,15 @@ def edit_submission(submission_id):
         flash("Submission updated successfully.", "success")
         return redirect(url_for("author.submission_detail", submission_id=submission_id))
     return render_template("author/submission_form.html", tracks=tracks, edit=True, submission=sub)
+
+
+@author_bp.route("/my-schedule")
+@login_required
+@author_required
+def my_schedule():
+    accepted_statuses = ["accepted", "accepted_oral", "accepted_poster", "scheduled"]
+    submissions = Submission.query.filter(
+        Submission.author_id == current_user.id,
+        Submission.status.in_(accepted_statuses),
+    ).order_by(Submission.submitted_at.desc()).all()
+    return render_template("author/my_schedule.html", submissions=submissions)
