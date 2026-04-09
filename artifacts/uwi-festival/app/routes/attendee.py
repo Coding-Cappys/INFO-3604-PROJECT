@@ -54,12 +54,12 @@ def rsvp(session_id):
     if existing:
         db.session.delete(existing)
         db.session.commit()
-        flash("RSVP removed.", "info")
+        flash("Attendance removed.", "info")
     else:
         rsvp = RSVP(attendee_id=current_user.id, session_id=session_id)
         db.session.add(rsvp)
         db.session.commit()
-        flash("RSVP confirmed!", "success")
+        flash("Attendance confirmed!", "success")
     return redirect(request.referrer or url_for("attendee.schedule"))
 
 

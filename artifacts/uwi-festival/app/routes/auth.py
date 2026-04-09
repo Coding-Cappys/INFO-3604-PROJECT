@@ -92,6 +92,25 @@ def profile():
     return render_template("auth/profile.html")
 
 
+@auth_bp.route("/reset-demo-data", methods=["POST"])
+def reset_demo_data():
+    # Drop all app data and recreate a fresh demo dataset.
+    from .. import _seed_initial_data
+
+    if current_user.is_authenticated:
+        logout_user()
+    try:
+        db.session.remove()
+        db.drop_all()
+        db.create_all()
+        _seed_initial_data()
+        flash("Demo data reset complete. You can now sign in with demo credentials.", "success")
+    except Exception:
+        db.session.rollback()
+        flash("Demo reset failed. Please try again.", "danger")
+    return redirect(url_for("auth.login"))
+
+
 def _role_dashboard(role):
     dashboards = {
         "admin": "admin.dashboard",

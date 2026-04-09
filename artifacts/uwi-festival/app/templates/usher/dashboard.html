@@ -13,6 +13,7 @@
       <div class="card-body">
         <form method="post" action="{{ url_for('usher.checkin') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="scan_method" value="manual">
           <div class="mb-3">
             <label class="form-label fw-semibold">Session</label>
             <select name="session_id" class="form-select" required>
@@ -155,6 +156,11 @@
       if (target && value) {
         target.value = value;
         target.dispatchEvent(new Event('input', { bubbles: true }));
+        const form = target.closest('form');
+        const scanMethodField = form ? form.querySelector('input[name="scan_method"]') : null;
+        if (scanMethodField) {
+          scanMethodField.value = 'qr';
+        }
         statusEl.textContent = 'QR code captured. Review the value and submit check-in.';
         bootstrap.Modal.getInstance(modalEl)?.hide();
         return true;

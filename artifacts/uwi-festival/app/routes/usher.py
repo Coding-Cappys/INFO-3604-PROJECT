@@ -37,6 +37,7 @@ def dashboard():
 def checkin():
     session_id = request.form.get("session_id")
     attendee_query = request.form.get("attendee_query", "").strip()
+    scanned_via_qr = request.form.get("scan_method") == "qr"
 
     if not session_id or not attendee_query:
         flash("Please select a session and enter an attendee ID or email.", "warning")
@@ -64,14 +65,20 @@ def checkin():
         ).first()
 
     if not attendee:
-        flash(f"No attendee found matching '{attendee_query}'.", "danger")
+        if scanned_via_qr:
+            flash("QR scan was not successful. Please rescan or enter attendee ID/email manually.", "danger")
+        else:
+            flash(f"No attendee found matching '{attendee_query}'.", "danger")
         return redirect(url_for("usher.dashboard"))
 
     existing = AttendanceRecord.query.filter_by(
         session_id=session.id, attendee_id=attendee.id
     ).first()
     if existing:
-        flash(f"{attendee.full_name} is already checked in.", "info")
+        if scanned_via_qr:
+            flash(f"QR scan successful. {attendee.full_name} is already checked in.", "info")
+        else:
+            flash(f"{attendee.full_name} is already checked in.", "info")
     else:
         record = AttendanceRecord(
             session_id=session.id,
@@ -81,7 +88,10 @@ def checkin():
         )
         db.session.add(record)
         db.session.commit()
-        flash(f"{attendee.full_name} checked in successfully!", "success")
+        if scanned_via_qr:
+            flash(f"QR scan successful. {attendee.full_name} checked in successfully!", "success")
+        else:
+            flash(f"{attendee.full_name} checked in successfully!", "success")
 
     return redirect(url_for("usher.dashboard"))
 

@@ -55,7 +55,7 @@
     <form method="post" action="{{ url_for('attendee.rsvp', session_id=submission.scheduled_session.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn btn-uwi w-100">
-        <i class="bi bi-bookmark-plus me-2"></i>RSVP for this Session
+        <i class="bi bi-bookmark-plus me-2"></i>Attend this Session
       </button>
     </form>
     {% endif %}
@@ -64,7 +64,7 @@
     <div class="card">
       <div class="card-body text-center">
         <i class="bi bi-person-plus display-6 text-muted mb-2 d-block"></i>
-        <p class="mb-2 small">Register as an attendee to RSVP to sessions</p>
+        <p class="mb-2 small">Register as an attendee to mark sessions you plan to attend</p>
         <a href="{{ url_for('auth.signup') }}" class="btn btn-uwi btn-sm">Sign Up</a>
       </div>
     </div>
