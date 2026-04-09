@@ -161,7 +161,7 @@ def _seed_submissions():
             keywords="neural networks, edge computing, model compression, IoT",
             track_id=track1.id,
             presentation_type="oral",
-            status="accepted",
+            status="scheduled",
             author_id=author.id,
         ),
         Submission(
@@ -172,7 +172,7 @@ def _seed_submissions():
             keywords="antimicrobial, medicinal plants, drug resistance, Caribbean flora",
             track_id=track2.id,
             presentation_type="poster",
-            status="accepted",
+            status="scheduled",
             author_id=author.id,
         ),
         Submission(
@@ -186,30 +186,102 @@ def _seed_submissions():
             status="under_review",
             author_id=author.id,
         ),
+        Submission(
+            title="Early Detection of Crop Disease Using Lightweight Vision Models",
+            authors="Jane Smith, Kevin Clarke",
+            affiliation="UWI St. Augustine",
+            abstract="This project evaluates lightweight computer vision models for identifying early crop disease symptoms from smartphone images collected by smallholder farmers. We compare MobileNet and EfficientNet variants and propose a low-bandwidth inference pipeline suitable for rural extension services.",
+            keywords="agritech, computer vision, mobile inference, food security",
+            track_id=track1.id,
+            presentation_type="oral",
+            status="submitted",
+            author_id=author.id,
+        ),
+        Submission(
+            title="Community-Based Interventions to Improve Hypertension Adherence",
+            authors="Jane Smith, Alicia Persad",
+            affiliation="UWI St. Augustine",
+            abstract="We assess patient adherence outcomes in a 9-month community health intervention that combines SMS reminders, peer educators, and pharmacy counseling for adults with hypertension. Preliminary findings show measurable improvements in refill regularity and follow-up attendance.",
+            keywords="public health, adherence, intervention design, chronic care",
+            track_id=track2.id,
+            presentation_type="poster",
+            status="changes_requested",
+            author_id=author.id,
+        ),
+        Submission(
+            title="Citizen Perceptions of Disaster Alerts Across Coastal Communities",
+            authors="Jane Smith, Rahul Mahabir",
+            affiliation="UWI St. Augustine",
+            abstract="This mixed-methods study investigates trust, clarity, and actionability of severe-weather alerts among households in coastal communities. Survey and interview findings identify communication gaps and suggest policy guidance for emergency agencies.",
+            keywords="risk communication, climate resilience, coastal policy",
+            track_id=track3.id,
+            presentation_type="oral",
+            status="accepted_oral",
+            author_id=author.id,
+        ),
+        Submission(
+            title="Comparative Study of Biodegradable Packaging Preferences in Trinidad",
+            authors="Jane Smith",
+            affiliation="UWI St. Augustine",
+            abstract="This consumer-behavior study compares willingness-to-pay for biodegradable packaging across age groups and retail contexts. The analysis highlights barriers to adoption and identifies pricing thresholds associated with broad acceptance.",
+            keywords="sustainability, consumer behavior, packaging",
+            track_id=track3.id,
+            presentation_type="poster",
+            status="rejected",
+            author_id=author.id,
+        ),
     ]
     db.session.add_all(submissions)
     db.session.flush()
 
-    assignment = ReviewerAssignment(
-        reviewer_id=reviewer.id,
-        submission_id=submissions[0].id,
-        assigned_theme=track1.name,
-    )
-    db.session.add(assignment)
+    assignments = [
+        ReviewerAssignment(reviewer_id=reviewer.id, submission_id=submissions[0].id, assigned_theme=track1.name),
+        ReviewerAssignment(reviewer_id=reviewer.id, submission_id=submissions[2].id, assigned_theme=track3.name),
+        ReviewerAssignment(reviewer_id=reviewer.id, submission_id=submissions[3].id, assigned_theme=track1.name),
+        ReviewerAssignment(reviewer_id=reviewer.id, submission_id=submissions[4].id, assigned_theme=track2.name),
+        ReviewerAssignment(reviewer_id=reviewer.id, submission_id=submissions[6].id, assigned_theme=track3.name),
+    ]
+    db.session.add_all(assignments)
 
-    review = Review(
-        submission_id=submissions[0].id,
-        reviewer_id=reviewer.id,
-        research_quality=4,
-        methodology=5,
-        relevance=4,
-        clarity=4,
-        overall_score=4,
-        comments="Excellent work on model compression techniques. The quantization approach is novel and the results are impressive. Minor clarification needed on the specific microcontroller test environment.",
-        recommendation="accept",
-        status="submitted",
-    )
-    db.session.add(review)
+    reviews = [
+        Review(
+            submission_id=submissions[0].id,
+            reviewer_id=reviewer.id,
+            research_quality=4,
+            methodology=5,
+            relevance=4,
+            clarity=4,
+            overall_score=4,
+            comments="Excellent work on model compression techniques. The quantization approach is novel and the results are impressive. Minor clarification needed on the specific microcontroller test environment.",
+            recommendation="accept",
+            status="submitted",
+        ),
+        Review(
+            submission_id=submissions[4].id,
+            reviewer_id=reviewer.id,
+            research_quality=3,
+            methodology=4,
+            relevance=4,
+            clarity=3,
+            overall_score=3,
+            comments="Promising intervention design. Please strengthen the sample rationale and include clearer subgroup analysis.",
+            recommendation="minor_revisions",
+            status="submitted",
+        ),
+        Review(
+            submission_id=submissions[6].id,
+            reviewer_id=reviewer.id,
+            research_quality=2,
+            methodology=2,
+            relevance=3,
+            clarity=3,
+            overall_score=2,
+            comments="Interesting topic, but methods and analysis depth are currently below the conference threshold.",
+            recommendation="reject",
+            status="submitted",
+        ),
+    ]
+    db.session.add_all(reviews)
     db.session.flush()
 
     session1 = ScheduledSession(
@@ -230,20 +302,42 @@ def _seed_submissions():
         session_chair=None,
         poster_board="A5",
     )
-    db.session.add_all([session1, session2])
+    session3 = ScheduledSession(
+        submission_id=submissions[5].id,
+        venue_id=venue2.id,
+        session_date="2026-04-16",
+        start_time="10:10",
+        end_time="10:30",
+        session_chair="Dr. Robert Brown",
+        poster_board=None,
+    )
+    db.session.add_all([session1, session2, session3])
     db.session.flush()
 
-    score = JudgingScore(
-        submission_id=submissions[0].id,
-        judge_id=judge.id,
-        research_quality=5,
-        clarity=4,
-        innovation=5,
-        response_to_questions=4,
-        overall_impact=5,
-        comments="Outstanding research with clear practical applications. The presentation was articulate and the methodology well-justified.",
-        status="submitted",
-    )
-    db.session.add(score)
+    scores = [
+        JudgingScore(
+            submission_id=submissions[0].id,
+            judge_id=judge.id,
+            research_quality=5,
+            clarity=4,
+            innovation=5,
+            response_to_questions=4,
+            overall_impact=5,
+            comments="Outstanding research with clear practical applications. The presentation was articulate and the methodology well-justified.",
+            status="submitted",
+        ),
+        JudgingScore(
+            submission_id=submissions[1].id,
+            judge_id=judge.id,
+            research_quality=4,
+            clarity=4,
+            innovation=4,
+            response_to_questions=4,
+            overall_impact=4,
+            comments="Strong regional relevance and high-quality poster communication.",
+            status="submitted",
+        ),
+    ]
+    db.session.add_all(scores)
 
     db.session.commit()

@@ -3,8 +3,15 @@
 {% block public_content %}
 <div class="container" style="padding-top:70px;">
 <div class="page-header">
-  <h1><i class="bi bi-journal-bookmark me-2"></i>Conference Digest</h1>
-  <p class="text-muted mb-0">Summary of accepted presentations and research at the 2026 UWI Principal's Research Awards & Festival</p>
+  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+    <div>
+      <h1><i class="bi bi-journal-bookmark me-2"></i>Conference Digest</h1>
+      <p class="text-muted mb-0">Summary of accepted presentations and research at the 2026 UWI Principal's Research Awards & Festival</p>
+    </div>
+    <button type="button" class="btn btn-uwi no-print" onclick="window.print()">
+      <i class="bi bi-printer me-2"></i>Print to PDF
+    </button>
+  </div>
 </div>
 
 {% for track in tracks %}
@@ -23,7 +30,7 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            <div class="col-md-9">
+            <div class="col-lg-8">
               <div class="d-flex gap-2 mb-1">
                 <span class="badge {% if sub.presentation_type == 'oral' %}bg-success{% else %}bg-info{% endif %} badge-status">{{ sub.presentation_type | title }}</span>
               </div>
@@ -41,19 +48,30 @@
               </div>
               {% endif %}
             </div>
-            <div class="col-md-3 text-md-end mt-3 mt-md-0">
-              {% if sub.scheduled_session %}
-              <div class="text-muted small">
-                <i class="bi bi-calendar3 me-1"></i>{{ sub.scheduled_session.session_date }}<br>
-                <i class="bi bi-clock me-1"></i>{{ sub.scheduled_session.start_time }}<br>
-                {% if sub.scheduled_session.venue %}
-                <i class="bi bi-geo-alt me-1"></i>{{ sub.scheduled_session.venue.name }}
-                {% endif %}
-                {% if sub.scheduled_session.poster_board %}
-                <br><i class="bi bi-layout-text-window me-1"></i>Board {{ sub.scheduled_session.poster_board }}
-                {% endif %}
+            <div class="col-lg-4 mt-3 mt-lg-0">
+              <div class="ps-lg-3 border-start-lg">
+                <h6 class="small text-muted text-uppercase mb-2">Schedule / Meta</h6>
+                <div class="text-muted small">
+                  {% if sub.scheduled_session %}
+                  <div><i class="bi bi-calendar3 me-1"></i>{{ sub.scheduled_session.session_date }}</div>
+                  <div><i class="bi bi-clock me-1"></i>{{ sub.scheduled_session.start_time }}{% if sub.scheduled_session.end_time %} - {{ sub.scheduled_session.end_time }}{% endif %}</div>
+                  {% if sub.scheduled_session.venue %}
+                  <div><i class="bi bi-geo-alt me-1"></i>{{ sub.scheduled_session.venue.name }}</div>
+                  {% endif %}
+                  {% if sub.scheduled_session.poster_board %}
+                  <div><i class="bi bi-layout-text-window me-1"></i>Board {{ sub.scheduled_session.poster_board }}</div>
+                  {% endif %}
+                  {% if sub.scheduled_session.session_chair %}
+                  <div><i class="bi bi-person me-1"></i>Chair: {{ sub.scheduled_session.session_chair }}</div>
+                  {% endif %}
+                  {% else %}
+                  <div><i class="bi bi-info-circle me-1"></i>Not scheduled yet</div>
+                  {% endif %}
+                  {% if sub.track %}
+                  <div class="mt-2"><i class="bi bi-diagram-3 me-1"></i>{{ sub.track.name }}</div>
+                  {% endif %}
+                </div>
               </div>
-              {% endif %}
             </div>
           </div>
         </div>
@@ -75,3 +93,31 @@
 </div>
 {% endblock %}
 {% block content %}{{ self.public_content() }}{% endblock %}
+{% block scripts %}
+<style>
+  .border-start-lg {
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  @media (max-width: 991.98px) {
+    .border-start-lg {
+      border-left: none;
+      padding-left: 0 !important;
+    }
+  }
+  @media print {
+    .navbar,
+    .sidebar,
+    .no-print,
+    .footer {
+      display: none !important;
+    }
+    .main-content {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .card {
+      break-inside: avoid;
+    }
+  }
+</style>
+{% endblock %}
