@@ -19,6 +19,22 @@
     .navbar { background: var(--uwi-dark) !important; border-bottom: 3px solid var(--uwi-gold); }
     .navbar-brand { font-family: 'Merriweather', serif; font-weight: 700; color: white !important; }
     .navbar-brand span { color: var(--uwi-gold); }
+    .mobile-menu-toggle,
+    .navbar-toggler {
+      border-color: rgba(255, 255, 255, 0.6) !important;
+      color: white !important;
+    }
+    .mobile-menu-toggle:hover,
+    .mobile-menu-toggle:focus,
+    .navbar-toggler:hover,
+    .navbar-toggler:focus {
+      border-color: var(--uwi-gold) !important;
+      color: var(--uwi-gold) !important;
+      box-shadow: 0 0 0 .2rem rgba(196,154,26,.2) !important;
+    }
+    .navbar-toggler-icon {
+      filter: invert(1) brightness(1.6);
+    }
     .nav-link { color: rgba(255,255,255,.85) !important; font-weight: 500; }
     .nav-link:hover, .nav-link.active { color: var(--uwi-gold) !important; }
     .sidebar {
@@ -83,7 +99,7 @@
     {% endif %}
     <nav class="navbar navbar-expand-lg fixed-top">
       <div class="container-fluid px-3">
-        <button class="btn btn-sm btn-outline-secondary d-lg-none me-2" id="sidebarToggle">
+        <button class="btn btn-sm d-lg-none me-2 mobile-menu-toggle" id="sidebarToggle">
           <i class="bi bi-list"></i>
         </button>
         <a class="navbar-brand" href="{{ home_url }}">
