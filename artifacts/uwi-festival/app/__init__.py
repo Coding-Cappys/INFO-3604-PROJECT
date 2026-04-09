@@ -16,6 +16,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///uwi_festival.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["WTF_CSRF_ENABLED"] = True
+    app.config["DEMO_RESET_ENABLED"] = True
 
     db.init_app(app)
     csrf.init_app(app)
